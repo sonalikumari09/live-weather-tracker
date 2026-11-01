@@ -1,24 +1,32 @@
-# 🌦️ Live Weather Tracker
+# Live Weather Tracker
 
-A fast, privacy-friendly, and trilingual weather web application built with **Python** and **Streamlit**. Designed for everyday travelers, farmers, and families across India.
+A clean and lightweight weather web application built with Python and Streamlit. It offers instant weather forecasts for cities, districts, and villages across India without requiring any API keys.
 
----
+## Overview
 
-## ✨ Features
+Most mainstream weather apps cater only to major metropolitan cities. Live Weather Tracker includes an offline database covering all 763 Indian districts and over 550,000 villages, ensuring that people in rural areas can easily look up their local weather. The application also supports three languages: English, Hindi, and Bhojpuri.
 
-- **🇮🇳 All-India District & Village Coverage:** Instant, prefix-aware search across all **763 districts** and **550,000+ villages, towns, and cities** backed by a bundled high-speed SQLite index (no API key required).
-- **🌐 Trilingual Support:** Fully translated interface in **English**, **हिन्दी (Hindi)**, and **भोजपुरी (Bhojpuri)**.
-- **5 Versatile Modes:**
-  1. **🔍 Single Place:** Current temperature, feels-like, wind, humidity, weather animation banners, and 7-day forecast.
-  2. **🎒 Travel Packer:** Smart clothing and gear recommendations based on rain probability, wind speed, and temperature.
-  3. **🌾 Farmer Mode (Village Special):** Soil temperature (6 cm depth), soil moisture (3–9 cm depth), past 7-day rainfall history, and actionable farming advisories.
-  4. **⚠️ Alert Mode:** Instant detection of extreme conditions (heatwave, coldwave, storms, heavy rain, gale wind) with audio alert.
-  5. **⚖️ Compare Mode:** Side-by-side comparison of 2–4 cities, districts, or villages.
-- **🔒 Zero API Keys Required:** Powered by Open-Meteo and bundled GeoNames data under CC BY 4.0.
+## Features
 
----
+- **All-India Place Search**: Search any Indian village, tehsil, or district with autocomplete suggestions. You can type village names, district names (such as "Sitamarhi district"), or combinations like "Bajpatti Sitamarhi" and "Sitamarhi Bajpatti".
+- **Trilingual Interface**: Switch easily between English, Hindi, and Bhojpuri.
+- **5 Focused Modes**:
+  1. **Single Place**: Current weather, feels-like temperature, humidity, wind speed, and a 7-day forecast.
+  2. **Travel Packer**: Packing tips based on temperature, rain probability, and wind.
+  3. **Farmer Mode**: Soil temperature (6 cm depth), soil moisture, 7-day rain history, and farming advisories.
+  4. **Morning Alerts**: Alerts for extreme heat, cold waves, thunderstorms, or heavy rain.
+  5. **Compare Places**: Side by side weather comparison for 2 to 4 locations.
+- **Fast and Privacy-Friendly**: Local SQLite index ensures sub-millisecond search without tracking or third-party ads.
 
-## 🚀 Quick Start
+## Tech Stack
+
+- **Framework**: Streamlit
+- **Language**: Python 3.9+
+- **Weather API**: Open-Meteo (free, no API key needed)
+- **Place Search**: Bundled GeoNames India SQLite database with OSM Photon fallback
+- **Dependencies**: pandas, requests, streamlit-searchbox
+
+## Installation and Setup
 
 ### 1. Clone the repository
 ```bash
@@ -31,32 +39,30 @@ cd live-weather-tracker
 pip install -r requirements.txt
 ```
 
-### 3. Run the app
+### 3. Launch the app
 ```bash
 streamlit run app.py
 ```
-Open [http://localhost:8501](http://localhost:8501) in your browser.
 
----
+Then visit `http://localhost:8501` in your web browser.
 
-## 📁 Project Structure
+## Project Structure
 
 ```text
-├── app.py                   # Streamlit web application & UI logic
-├── places.py                # High-speed local search engine for districts & villages
-├── geo.py                   # Geocoding & autocomplete suggestion pipeline
-├── weather.py               # Open-Meteo weather API integration & alerts
-├── i18n.py                  # English, Hindi & Bhojpuri trilingual translations
-├── ui_effects.py            # Custom CSS themes & animated weather banners
-├── build_india_places.py    # Offline builder for the Indian places index
+├── app.py                     # Main application and page layout
+├── places.py                  # Local search engine for districts and villages
+├── geo.py                     # Geocoding and autocomplete helpers
+├── weather.py                 # Weather data fetching and packing logic
+├── i18n.py                    # Translations for English, Hindi, and Bhojpuri
+├── ui_effects.py              # Custom CSS and animated banners
+├── build_india_places.py      # Script to rebuild the places SQLite database
 ├── data/
-│   └── india_places.sqlite.gz # Bundled index (763 districts, 550,000+ villages)
-├── requirements.txt         # Python dependencies
-└── LICENSE                  # MIT License
+│   └── india_places.sqlite.gz # Compressed SQLite database of Indian places
+├── requirements.txt           # Python package dependencies
+├── LICENSE                    # MIT License
+└── README.md                  # Project documentation
 ```
 
----
+## License
 
-## 📜 License
-
-This project is licensed under the [MIT License](LICENSE). GeoNames place data is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+This project is licensed under the MIT License. Place data is sourced from GeoNames under the CC BY 4.0 license.
