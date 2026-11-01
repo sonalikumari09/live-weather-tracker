@@ -143,8 +143,42 @@
 
         <!-- 7-Day Forecast Section -->
         <div class="section-card">
-          <h3 class="section-title" id="lbl-forecast7">7-Day Forecast</h3>
+          <div class="forecast-header-row">
+            <div>
+              <h3 class="section-title" id="lbl-forecast7">7-Day Forecast</h3>
+              <p class="section-subtitle" id="lbl-forecast-hint">Click on any date to see 24-hour detailed breakdown and live sky animations.</p>
+            </div>
+          </div>
           <div class="forecast-cards" id="forecast-cards-container"></div>
+
+          <!-- Detailed Hourly Forecast Breakdown (Interactive on date click) -->
+          <div id="hourly-detail-section" class="hourly-detail-panel" style="display: none;">
+            <div class="hourly-header">
+              <div class="hourly-header-info">
+                <span id="hourly-selected-day-badge" class="hourly-day-badge">Today</span>
+                <h4 id="hourly-selected-date-text">Hourly Breakdown</h4>
+              </div>
+              <div class="hourly-meta-stats" id="hourly-meta-stats"></div>
+            </div>
+
+            <!-- Atmospheric Weather Banner Preview for the Selected Day / Hour -->
+            <div id="hourly-weather-fx-preview" class="hourly-fx-preview weather-clear">
+              <div class="banner-fx" id="hourly-banner-fx"></div>
+              <div class="hourly-preview-content">
+                <div class="hourly-preview-left">
+                  <span id="hourly-preview-icon" class="hourly-preview-icon">☀️</span>
+                  <div>
+                    <div id="hourly-preview-temp" class="hourly-preview-temp">--°C</div>
+                    <div id="hourly-preview-cond" class="hourly-preview-cond">Clear Sky</div>
+                  </div>
+                </div>
+                <div class="hourly-preview-right" id="hourly-preview-dynamic-tag"></div>
+              </div>
+            </div>
+
+            <!-- Scrollable 24-Hour Timeline -->
+            <div class="hourly-timeline-scroll" id="hourly-timeline-container"></div>
+          </div>
 
           <!-- Charts -->
           <div class="charts-container">

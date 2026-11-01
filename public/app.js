@@ -198,6 +198,8 @@ let selectedPlace = POPULAR_PLACES[0];
 let weatherData = null;
 let farmerData = null;
 let searchDebounceTimer = null;
+let selectedDayIndex = 0;
+let selectedHourIndex = null;
 
 // DOM Elements
 const langSelect = document.getElementById("lang-select");
@@ -546,12 +548,13 @@ function renderBannerFx(theme, isDay) {
   if (!container) return;
   container.innerHTML = "";
 
+  const currentWind = (weatherData && weatherData.current && weatherData.current.wind_speed_10m) || 0;
+  const isWindy = currentWind >= 18;
+
   if (theme === "clear") {
-    if (isDay) {
-      container.innerHTML = '<div class="wx-sun"></div>';
-    } else {
-      container.innerHTML = "";
-    }
+    let html = isDay ? '<div class="wx-sun"></div>' : "";
+    if (isWindy) html += generateWindStreams(4);
+    container.innerHTML = html;
     return;
   }
 
@@ -560,12 +563,15 @@ function renderBannerFx(theme, isDay) {
       ? '<div class="wx-sun" style="width:68px;height:68px;top:20px;right:40px;"></div>'
       : "";
     html += generateClouds(3, !isDay);
+    if (isWindy) html += generateWindStreams(4);
     container.innerHTML = html;
     return;
   }
 
   if (theme === "cloudy") {
-    container.innerHTML = generateClouds(4, false);
+    let html = generateClouds(4, false);
+    if (isWindy) html += generateWindStreams(5);
+    container.innerHTML = html;
     return;
   }
 
@@ -574,17 +580,22 @@ function renderBannerFx(theme, isDay) {
     html += '<div class="wx-fogband" style="top:55px;animation-duration:5s;"></div>';
     html += '<div class="wx-fogband" style="top:90px;animation-duration:7s;"></div>';
     html += '<div class="wx-fogband" style="top:125px;animation-duration:6s;"></div>';
+    if (isWindy) html += generateWindStreams(3);
     container.innerHTML = html;
     return;
   }
 
   if (theme === "drizzle") {
-    container.innerHTML = generateClouds(2, false) + generateDrops(18);
+    let html = generateClouds(2, false) + generateDrops(18);
+    if (isWindy) html += generateWindStreams(4);
+    container.innerHTML = html;
     return;
   }
 
   if (theme === "rainy") {
-    container.innerHTML = generateClouds(3, true) + generateDrops(32);
+    let html = generateClouds(3, true) + generateDrops(32);
+    if (isWindy) html += generateWindStreams(5);
+    container.innerHTML = html;
     return;
   }
 
@@ -592,6 +603,7 @@ function renderBannerFx(theme, isDay) {
     let html = '<div class="wx-stormflash"></div>';
     html += generateClouds(3, true);
     html += generateDrops(28);
+    if (isWindy) html += generateWindStreams(5);
     html += '<div class="wx-bolt" style="left:22%;">⚡</div>';
     html += '<div class="wx-bolt" style="left:68%;animation-delay:1.5s;">⚡</div>';
     container.innerHTML = html;
@@ -599,7 +611,9 @@ function renderBannerFx(theme, isDay) {
   }
 
   if (theme === "snow") {
-    container.innerHTML = generateClouds(2, false) + generateFlakes(24);
+    let html = generateClouds(2, false) + generateFlakes(24);
+    if (isWindy) html += generateWindStreams(4);
+    container.innerHTML = html;
     return;
   }
 }
@@ -643,18 +657,39 @@ function generateFlakes(n) {
   return html;
 }
 
+function generateWindStreams(n) {
+  let html = "";
+  for (let i = 0; i < n; i++) {
+    const top = 16 + ((i * 24) % 92);
+    const w = 70 + ((i * 35) % 85);
+    const dur = (1.4 + ((i * 0.25) % 1.2)).toFixed(2);
+    const delay = -(i * 0.35).toFixed(2);
+    html += `<div class="wx-windstream" style="top:${top}px;width:${w}px;animation-duration:${dur}s;animation-delay:${delay}s;"></div>`;
+  }
+  return html;
+}
+
 function renderForecastCards(daily) {
   const container = document.getElementById("forecast-cards-container");
   container.innerHTML = "";
   if (!daily || !daily.time) return;
 
+  if (selectedDayIndex >= daily.time.length) {
+    selectedDayIndex = 0;
+  }
+
   daily.time.forEach((t, i) => {
     const card = document.createElement("div");
-    card.className = "forecast-card";
+    card.className = `forecast-card ${i === selectedDayIndex ? "selected" : ""}`;
+    card.dataset.dayIndex = i;
+
     const date = new Date(t);
-    const dayName = date.toLocaleDateString(currentLang === "en" ? "en-US" : "hi-IN", {
-      weekday: "short",
-    });
+    const dayName = i === 0
+      ? (currentLang === "hi" ? "आज" : currentLang === "bho" ? "आजु" : "Today")
+      : i === 1
+      ? (currentLang === "hi" ? "कल" : currentLang === "bho" ? "बिहाने" : "Tomorrow")
+      : date.toLocaleDateString(currentLang === "en" ? "en-US" : "hi-IN", { weekday: "short" });
+
     const dateStr = date.toLocaleDateString(currentLang === "en" ? "en-US" : "hi-IN", {
       day: "numeric",
       month: "short",
@@ -670,8 +705,239 @@ function renderForecastCards(daily) {
       <div class="fc-temps">${daily.temperature_2m_max[i]}° <span class="fc-min">${daily.temperature_2m_min[i]}°</span></div>
       <div class="fc-rain">💧 ${rain}%</div>
     `;
+
+    card.addEventListener("click", () => {
+      selectedDayIndex = i;
+      container.querySelectorAll(".forecast-card").forEach((c) => c.classList.remove("selected"));
+      card.classList.add("selected");
+      renderHourlyDetail(i);
+    });
+
     container.appendChild(card);
   });
+
+  renderHourlyDetail(selectedDayIndex);
+}
+
+function renderHourlyDetail(dayIndex) {
+  selectedDayIndex = dayIndex;
+  const panel = document.getElementById("hourly-detail-section");
+  if (!panel) return;
+  panel.style.display = "block";
+
+  if (!weatherData || !weatherData.hourly || !weatherData.hourly.time) {
+    return;
+  }
+
+  const daily = weatherData.daily || {};
+  const hourly = weatherData.hourly;
+  const startIdx = dayIndex * 24;
+  const endIdx = startIdx + 24;
+
+  const times = hourly.time.slice(startIdx, endIdx);
+  const temps = hourly.temperature_2m.slice(startIdx, endIdx);
+  const humids = hourly.relative_humidity_2m ? hourly.relative_humidity_2m.slice(startIdx, endIdx) : [];
+  const rains = hourly.precipitation_probability ? hourly.precipitation_probability.slice(startIdx, endIdx) : [];
+  const codes = hourly.weather_code ? hourly.weather_code.slice(startIdx, endIdx) : [];
+  const winds = hourly.wind_speed_10m ? hourly.wind_speed_10m.slice(startIdx, endIdx) : [];
+  const feels = hourly.apparent_temperature ? hourly.apparent_temperature.slice(startIdx, endIdx) : temps;
+
+  if (times.length === 0) return;
+
+  const dayDate = daily.time && daily.time[dayIndex] ? new Date(daily.time[dayIndex]) : new Date();
+  const dayName = dayIndex === 0
+    ? (currentLang === "hi" ? "आज" : currentLang === "bho" ? "आजु" : "Today")
+    : dayIndex === 1
+    ? (currentLang === "hi" ? "कल" : currentLang === "bho" ? "बिहाने" : "Tomorrow")
+    : dayDate.toLocaleDateString(currentLang === "en" ? "en-US" : "hi-IN", { weekday: "long" });
+
+  const dateText = dayDate.toLocaleDateString(currentLang === "en" ? "en-US" : "hi-IN", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  const badgeEl = document.getElementById("hourly-selected-day-badge");
+  if (badgeEl) badgeEl.textContent = dayName;
+
+  const titleEl = document.getElementById("hourly-selected-date-text");
+  if (titleEl) {
+    titleEl.textContent = `${dayName} - 24-Hour Detailed Breakdown (${dateText})`;
+  }
+
+  const maxT = Math.round(Math.max(...temps));
+  const minT = Math.round(Math.min(...temps));
+  const maxR = rains.length ? Math.max(...rains) : 0;
+  const maxW = winds.length ? Math.round(Math.max(...winds)) : 0;
+  const avgH = humids.length ? Math.round(humids.reduce((a, b) => a + b, 0) / humids.length) : 0;
+
+  const metaEl = document.getElementById("hourly-meta-stats");
+  if (metaEl) {
+    metaEl.innerHTML = `
+      <span class="meta-chip">🌡️ Range: <strong>${minT}°C - ${maxT}°C</strong></span>
+      <span class="meta-chip">🌧️ Peak Rain: <strong>${maxR}%</strong></span>
+      <span class="meta-chip">💨 Peak Wind: <strong>${maxW} km/h</strong></span>
+      <span class="meta-chip">💧 Humidity: <strong>${avgH}%</strong></span>
+    `;
+  }
+
+  let activeHour = 12;
+  if (dayIndex === 0) {
+    const curH = new Date().getHours();
+    activeHour = curH >= 0 && curH < 24 ? curH : 12;
+  }
+  selectedHourIndex = activeHour;
+
+  const timelineContainer = document.getElementById("hourly-timeline-container");
+  if (timelineContainer) {
+    timelineContainer.innerHTML = "";
+    times.forEach((t, h) => {
+      const card = document.createElement("div");
+      card.className = `hourly-timeline-card ${h === activeHour ? "active" : ""}`;
+      card.dataset.hour = h;
+
+      const code = codes[h] !== undefined ? codes[h] : 0;
+      const w = getWeatherInfo(code, currentLang);
+      const isDay = h >= 6 && h < 19;
+      const icon = (!isDay && w.theme === "clear") ? "🌙" : w.icon;
+      const tempVal = Math.round(temps[h]);
+      const rainVal = rains[h] !== undefined ? rains[h] : 0;
+      const windVal = winds[h] !== undefined ? Math.round(winds[h]) : 0;
+      const hourLabel = formatHourAmPm(h);
+
+      card.innerHTML = `
+        <div class="hc-time">${hourLabel}</div>
+        <div class="hc-icon">${icon}</div>
+        <div class="hc-temp">${tempVal}°C</div>
+        <div class="hc-rain">💧 ${rainVal}%</div>
+        <div class="hc-wind">💨 ${windVal}k</div>
+      `;
+
+      card.addEventListener("click", () => {
+        timelineContainer.querySelectorAll(".hourly-timeline-card").forEach((c) => c.classList.remove("active"));
+        card.classList.add("active");
+        selectedHourIndex = h;
+        updateHourlyPreview(dayIndex, h);
+      });
+
+      timelineContainer.appendChild(card);
+    });
+
+    setTimeout(() => {
+      const activeCard = timelineContainer.querySelector(".hourly-timeline-card.active");
+      if (activeCard) {
+        activeCard.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+      }
+    }, 60);
+  }
+
+  updateHourlyPreview(dayIndex, activeHour);
+}
+
+function updateHourlyPreview(dayIndex, hourIndex) {
+  if (!weatherData || !weatherData.hourly) return;
+  const hourly = weatherData.hourly;
+  const idx = dayIndex * 24 + hourIndex;
+
+  const temp = Math.round(hourly.temperature_2m[idx]);
+  const feels = hourly.apparent_temperature ? Math.round(hourly.apparent_temperature[idx]) : temp;
+  const rain = hourly.precipitation_probability ? hourly.precipitation_probability[idx] : 0;
+  const wind = hourly.wind_speed_10m ? Math.round(hourly.wind_speed_10m[idx]) : 0;
+  const code = hourly.weather_code ? hourly.weather_code[idx] : 0;
+  const w = getWeatherInfo(code, currentLang);
+
+  const isDay = hourIndex >= 6 && hourIndex < 19;
+  let activeTheme = w.theme;
+  let dynamicIcon = w.icon;
+
+  if (!isDay) {
+    if (w.theme === "clear") {
+      activeTheme = "clear-night";
+      dynamicIcon = "🌙";
+    } else if (w.theme === "partcloud") {
+      activeTheme = "partcloud-night";
+      dynamicIcon = "☁️";
+    }
+  } else {
+    if (w.theme === "clear") {
+      dynamicIcon = "☀️";
+    }
+  }
+
+  const previewBox = document.getElementById("hourly-weather-fx-preview");
+  if (previewBox) {
+    previewBox.className = `hourly-fx-preview weather-${activeTheme}`;
+  }
+
+  const iconEl = document.getElementById("hourly-preview-icon");
+  if (iconEl) iconEl.textContent = dynamicIcon;
+
+  const tempEl = document.getElementById("hourly-preview-temp");
+  if (tempEl) tempEl.textContent = `${temp}°C`;
+
+  const condEl = document.getElementById("hourly-preview-cond");
+  const hourLabel = formatHourAmPm(hourIndex);
+  if (condEl) {
+    condEl.textContent = `${w.name} • ${hourLabel} • Feels ${feels}°C`;
+  }
+
+  const fxContainer = document.getElementById("hourly-banner-fx");
+  const tagEl = document.getElementById("hourly-preview-dynamic-tag");
+
+  let fxHtml = "";
+  let tagText = "";
+
+  const isMorningSunrise = isDay && hourIndex >= 6 && hourIndex <= 9;
+  const hasStrongWind = wind >= 18;
+  const hasRain = rain >= 40 || w.theme === "rainy" || w.theme === "drizzle";
+
+  if (hasRain && hasStrongWind) {
+    fxHtml = generateClouds(3, true) + generateDrops(28) + generateWindStreams(5);
+    tagText = `🌧️ Wind-driven Rain Active (${wind} km/h, ${rain}% Rain)`;
+  } else if (hasRain) {
+    const dropCount = rain >= 70 ? 36 : 22;
+    fxHtml = generateClouds(3, true) + generateDrops(dropCount);
+    tagText = `🌧️ Rain Falling Animation Active (${rain}% Chance)`;
+  } else if (hasStrongWind) {
+    fxHtml = generateClouds(2, false) + generateWindStreams(6);
+    tagText = `💨 Wind Stream Gusts Active (${wind} km/h Wind)`;
+  } else if (w.theme === "thunder") {
+    fxHtml = '<div class="wx-stormflash"></div>' + generateClouds(3, true) + generateDrops(28) + '<div class="wx-bolt" style="left:25%;">⚡</div><div class="wx-bolt" style="left:72%;animation-delay:1.5s;">⚡</div>';
+    tagText = "⚡ Thunderstorm & Heavy Rain Active";
+  } else if (w.theme === "snow") {
+    fxHtml = generateClouds(2, false) + generateFlakes(24);
+    tagText = "❄️ Snow Flurry Active";
+  } else if (w.theme === "fog") {
+    fxHtml = generateClouds(2, true) + '<div class="wx-fogband" style="top:25px;"></div><div class="wx-fogband" style="top:65px;"></div>';
+    tagText = "🌫️ Fog Bands Active";
+  } else if (isDay && (w.theme === "clear" || w.theme === "partcloud")) {
+    if (isMorningSunrise) {
+      fxHtml = '<div class="wx-sun wx-sunrise"></div>';
+      if (w.theme === "partcloud") fxHtml += generateClouds(2, false);
+      tagText = `🌅 Sun Rising Animation Active (${hourLabel})`;
+    } else {
+      fxHtml = '<div class="wx-sun"></div>';
+      if (w.theme === "partcloud") fxHtml += generateClouds(2, false);
+      tagText = `☀️ Radiant Sunlight Active (${hourLabel})`;
+    }
+  } else if (w.theme === "cloudy") {
+    fxHtml = generateClouds(4, false);
+    tagText = "☁️ Overcast Cloud Drift Active";
+  } else {
+    fxHtml = "";
+    tagText = isDay ? `🌤️ Calm Sky (${wind} km/h)` : "🌙 Clear Night Sky";
+  }
+
+  if (fxContainer) fxContainer.innerHTML = fxHtml;
+  if (tagEl) {
+    tagEl.innerHTML = `<span class="hourly-fx-tag">${tagText}</span>`;
+  }
+}
+
+function formatHourAmPm(h) {
+  if (h === 0) return "12 AM";
+  if (h === 12) return "12 PM";
+  return h > 12 ? `${h - 12} PM` : `${h} AM`;
 }
 
 // ----------------- Interactive SVG Charts -----------------

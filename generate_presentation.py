@@ -1,5 +1,4 @@
 import os
-import shutil
 import pptx
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
@@ -12,7 +11,7 @@ def create_presentation():
     prs.slide_height = Inches(7.5)
     blank_layout = prs.slide_layouts[6]
 
-    # Professional Theme Color Palette
+    # Clean, Modern Palette
     BG_DARK = RGBColor(15, 23, 42)          # Deep Slate 900
     BG_CARD_DARK = RGBColor(30, 41, 59)     # Slate 800
     BG_LIGHT = RGBColor(248, 250, 252)      # Slate 50
@@ -46,7 +45,7 @@ def create_presentation():
     def add_header(slide, title_text, category_text, slide_num_str):
         # Category Pill
         pill = slide.shapes.add_shape(
-            MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(0.42), Inches(2.6), Inches(0.32)
+            MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(0.45), Inches(2.5), Inches(0.32)
         )
         pill.fill.solid()
         pill.fill.fore_color.rgb = PRIMARY_LIGHT
@@ -65,7 +64,7 @@ def create_presentation():
 
         # Slide Number Pill
         num_pill = slide.shapes.add_shape(
-            MSO_SHAPE.ROUNDED_RECTANGLE, Inches(11.4), Inches(0.42), Inches(1.13), Inches(0.32)
+            MSO_SHAPE.ROUNDED_RECTANGLE, Inches(11.4), Inches(0.45), Inches(1.13), Inches(0.32)
         )
         num_pill.fill.solid()
         num_pill.fill.fore_color.rgb = RGBColor(241, 245, 249)
@@ -82,9 +81,9 @@ def create_presentation():
         p_num.font.color.rgb = TEXT_MUTED
         p_num.alignment = PP_ALIGN.CENTER
 
-        # Slide Title
+        # Title Box
         title_box = slide.shapes.add_textbox(
-            Inches(0.8), Inches(0.8), Inches(10.4), Inches(0.6)
+            Inches(0.8), Inches(0.85), Inches(10.4), Inches(0.55)
         )
         tf_title = title_box.text_frame
         tf_title.word_wrap = True
@@ -92,13 +91,13 @@ def create_presentation():
         p_title = tf_title.paragraphs[0]
         p_title.text = title_text
         p_title.font.name = "Arial"
-        p_title.font.size = Pt(21)
+        p_title.font.size = Pt(22)
         p_title.font.bold = True
         p_title.font.color.rgb = TEXT_DARK
 
-        # Subtle Accent Divider
+        # Clean Accent Divider
         divider = slide.shapes.add_shape(
-            MSO_SHAPE.RECTANGLE, Inches(0.8), Inches(1.45), Inches(11.733), Inches(0.02)
+            MSO_SHAPE.RECTANGLE, Inches(0.8), Inches(1.48), Inches(11.733), Inches(0.02)
         )
         divider.fill.solid()
         divider.fill.fore_color.rgb = RGBColor(226, 232, 240)
@@ -115,12 +114,12 @@ def create_presentation():
         return card
 
     # ==========================================
-    # SLIDE 1: Title Slide (Dark Hero Aesthetic)
+    # SLIDE 1: Title Slide (Minimal Dark Hero)
     # ==========================================
     slide1 = prs.slides.add_slide(blank_layout)
     set_slide_background(slide1, BG_DARK)
 
-    # Accent vertical glow bar
+    # Cyan vertical accent bar
     glow_bar = slide1.shapes.add_shape(
         MSO_SHAPE.RECTANGLE, Inches(0.8), Inches(0.8), Inches(0.1), Inches(5.9)
     )
@@ -130,7 +129,7 @@ def create_presentation():
 
     # Top Tag
     top_badge = slide1.shapes.add_shape(
-        MSO_SHAPE.ROUNDED_RECTANGLE, Inches(1.15), Inches(0.8), Inches(4.3), Inches(0.38)
+        MSO_SHAPE.ROUNDED_RECTANGLE, Inches(1.15), Inches(0.8), Inches(4.2), Inches(0.38)
     )
     top_badge.fill.solid()
     top_badge.fill.fore_color.rgb = RGBColor(30, 41, 59)
@@ -145,592 +144,336 @@ def create_presentation():
     p_b.font.bold = True
     p_b.font.color.rgb = PRIMARY_GLOW
 
-    # Main Title Box
+    # Title & Subtitle Box
     title_box = slide1.shapes.add_textbox(
-        Inches(1.15), Inches(1.35), Inches(11.35), Inches(2.3)
+        Inches(1.15), Inches(1.4), Inches(11.35), Inches(2.2)
     )
     tf1 = title_box.text_frame
     tf1.word_wrap = True
     tf1.margin_left = tf1.margin_top = 0
 
     p1 = tf1.paragraphs[0]
-    p1.text = "Python Programming & Software Engineering"
+    p1.text = "Live Weather Tracker"
     p1.font.name = "Arial"
-    p1.font.size = Pt(30)
+    p1.font.size = Pt(36)
     p1.font.bold = True
     p1.font.color.rgb = RGBColor(255, 255, 255)
     p1.space_after = Pt(8)
 
     p2 = tf1.add_paragraph()
-    p2.text = "Capstone Project: Live Weather Tracker"
+    p2.text = "Python Programming & Applied Software Engineering"
     p2.font.name = "Arial"
-    p2.font.size = Pt(21)
+    p2.font.size = Pt(20)
     p2.font.bold = True
     p2.font.color.rgb = PRIMARY_GLOW
     p2.space_after = Pt(6)
 
     p3 = tf1.add_paragraph()
-    p3.text = "A Trilingual, Zero-Key Meteorological & Agricultural Intelligence Platform for 550,000+ Indian Villages"
+    p3.text = "Hyperlocal weather and farming intelligence for 550,000+ Indian villages - 100% free, trilingual, zero keys."
     p3.font.name = "Arial"
-    p3.font.size = Pt(13.5)
+    p3.font.size = Pt(14)
     p3.font.color.rgb = RGBColor(148, 163, 184)
 
+    # Two Simple Cards at Bottom
     # Candidate Card
-    c1 = create_card(slide1, Inches(1.15), Inches(3.95), Inches(5.6), Inches(2.75), BG_CARD_DARK, CARD_BORDER_DARK, 1)
+    c1 = create_card(slide1, Inches(1.15), Inches(4.0), Inches(5.6), Inches(2.7), BG_CARD_DARK, CARD_BORDER_DARK, 1)
     c1_tf = c1.text_frame
     c1_tf.word_wrap = True
-    c1_tf.margin_left = c1_tf.margin_top = Inches(0.28)
-    c1_tf.margin_right = Inches(0.28)
+    c1_tf.margin_left = c1_tf.margin_top = Inches(0.3)
+    c1_tf.margin_right = Inches(0.3)
 
     p = c1_tf.paragraphs[0]
-    p.text = "CANDIDATE DETAILS"
+    p.text = "CANDIDATE"
     p.font.name = "Arial"
     p.font.size = Pt(11)
     p.font.bold = True
     p.font.color.rgb = PRIMARY_GLOW
-    p.space_after = Pt(10)
+    p.space_after = Pt(8)
 
-    rows_c1 = [
-        ("Student Name", "Sonali Kumari"),
-        ("Roll Number", "26DCSE26"),
-        ("Branch / Degree", "Computer Science & Engineering (B.Tech CSE)"),
-        ("Institution", "Government Engineering College, Sheikhpura")
-    ]
-    for lbl, val in rows_c1:
-        pr = c1_tf.add_paragraph()
-        pr.space_after = Pt(5)
-        run_l = pr.add_run()
-        run_l.text = f"{lbl}:  "
-        run_l.font.name = "Arial"
-        run_l.font.size = Pt(11.5)
-        run_l.font.color.rgb = RGBColor(148, 163, 184)
-        run_v = pr.add_run()
-        run_v.text = val
-        run_v.font.name = "Arial"
-        run_v.font.size = Pt(11.5)
-        run_v.font.bold = True
-        run_v.font.color.rgb = RGBColor(255, 255, 255)
+    p_name = c1_tf.add_paragraph()
+    p_name.text = "Sonali Kumari"
+    p_name.font.name = "Arial"
+    p_name.font.size = Pt(20)
+    p_name.font.bold = True
+    p_name.font.color.rgb = RGBColor(255, 255, 255)
+    p_name.space_after = Pt(6)
+
+    p_sub = c1_tf.add_paragraph()
+    p_sub.text = "Roll No: 26DCSE26\nComputer Science & Engineering (B.Tech CSE)\nGovernment Engineering College, Sheikhpura"
+    p_sub.font.name = "Arial"
+    p_sub.font.size = Pt(12)
+    p_sub.font.color.rgb = RGBColor(148, 163, 184)
 
     # Organization Card
-    c2 = create_card(slide1, Inches(7.05), Inches(3.95), Inches(5.45), Inches(2.75), BG_CARD_DARK, CARD_BORDER_DARK, 1)
+    c2 = create_card(slide1, Inches(7.05), Inches(4.0), Inches(5.45), Inches(2.7), BG_CARD_DARK, CARD_BORDER_DARK, 1)
     c2_tf = c2.text_frame
     c2_tf.word_wrap = True
-    c2_tf.margin_left = c2_tf.margin_top = Inches(0.28)
-    c2_tf.margin_right = Inches(0.28)
+    c2_tf.margin_left = c2_tf.margin_top = Inches(0.3)
+    c2_tf.margin_right = Inches(0.3)
 
     p = c2_tf.paragraphs[0]
-    p.text = "TRAINING & EVALUATION"
+    p.text = "ORGANIZATION & RESULT"
     p.font.name = "Arial"
     p.font.size = Pt(11)
     p.font.bold = True
     p.font.color.rgb = PRIMARY_GLOW
-    p.space_after = Pt(10)
+    p.space_after = Pt(8)
 
-    rows_c2 = [
-        ("Host Organization", "INTELLIO INTERN (AICTE Recognized)"),
-        ("Internship Domain", "Python Programming & Web Architecture"),
-        ("Duration", "25/09/2026 - 08/10/2026 (2 Weeks Intensive)"),
-        ("Evaluation Result", "Grade A+ (91%)  |  Cert ID: BQTA26319")
-    ]
-    for lbl, val in rows_c2:
-        pr = c2_tf.add_paragraph()
-        pr.space_after = Pt(5)
-        run_l = pr.add_run()
-        run_l.text = f"{lbl}:  "
-        run_l.font.name = "Arial"
-        run_l.font.size = Pt(11.5)
-        run_l.font.color.rgb = RGBColor(148, 163, 184)
-        run_v = pr.add_run()
-        run_v.text = val
-        run_v.font.name = "Arial"
-        run_v.font.size = Pt(11.5)
-        run_v.font.bold = True
-        run_v.font.color.rgb = RGBColor(255, 255, 255) if "Grade" not in lbl else RGBColor(52, 211, 153)
+    p_org = c2_tf.add_paragraph()
+    p_org.text = "INTELLIO INTERN"
+    p_org.font.name = "Arial"
+    p_org.font.size = Pt(20)
+    p_org.font.bold = True
+    p_org.font.color.rgb = RGBColor(255, 255, 255)
+    p_org.space_after = Pt(6)
+
+    p_org_sub = c2_tf.add_paragraph()
+    p_org_sub.text = "AICTE Recognized Partner\nDuration: 25 Sept 2026 - 08 Oct 2026 (2 Weeks)\nResult: Grade A+ (91%)  |  Cert ID: BQTA26319"
+    p_org_sub.font.name = "Arial"
+    p_org_sub.font.size = Pt(12)
+    p_org_sub.font.color.rgb = RGBColor(148, 163, 184)
 
     # ==========================================
     # SLIDE 2: About the Organization & Training
     # ==========================================
     slide2 = prs.slides.add_slide(blank_layout)
     set_slide_background(slide2, BG_LIGHT)
-    add_header(slide2, "About INTELLIO INTERN & Training Program", "Organization Profile", "02 / 12")
+    add_header(slide2, "About INTELLIO INTERN & Training", "Organization Profile", "02 / 12")
 
     col_w = Inches(3.68)
     col_gap = Inches(0.34)
-    top_y = Inches(1.72)
-    h_card = Inches(5.25)
+    top_y = Inches(1.8)
+    h_card = Inches(5.1)
 
-    # Box 1: Organization Profile
-    b1 = create_card(slide2, Inches(0.8), top_y, col_w, h_card)
-    tf1 = b1.text_frame
-    tf1.word_wrap = True
-    tf1.margin_left = tf1.margin_right = tf1.margin_top = Inches(0.28)
-
-    p = tf1.paragraphs[0]
-    p.text = "HOST ORGANIZATION"
-    p.font.name = "Arial"
-    p.font.size = Pt(10.5)
-    p.font.bold = True
-    p.font.color.rgb = PRIMARY
-    p.space_after = Pt(4)
-
-    p_title = tf1.add_paragraph()
-    p_title.text = "INTELLIO INTERN"
-    p_title.font.name = "Arial"
-    p_title.font.size = Pt(17)
-    p_title.font.bold = True
-    p_title.font.color.rgb = TEXT_DARK
-    p_title.space_after = Pt(10)
-
-    bullet_points1 = [
-        ("AICTE Recognized Entity:", " Certified technical education training partner offering structured engineering internships."),
-        ("Domain Expertise:", " Specializes in Python Programming, Data Engineering, Web Systems, and Cloud-native technologies."),
-        ("Industry Alignment:", " Focuses on real-world engineering paradigms, modular code design, and version control."),
-        ("Mentorship Model:", " Guided by experienced software developers providing architectural reviews and code feedback.")
+    cards2_data = [
+        ("HOST ORGANIZATION", "INTELLIO INTERN", [
+            ("AICTE Recognized:", " Certified technical training partner for engineering students."),
+            ("Domain Focus:", " Python Programming, web systems, and cloud architecture."),
+            ("Industry Standards:", " Emphasis on modular architecture, clean code, and git."),
+            ("Mentorship:", " Regular code reviews and architectural guidance from mentors.")
+        ]),
+        ("INTERNSHIP FORMAT", "100% Online & Hands-on", [
+            ("Duration:", " 2-Week Intensive Program (25/09/2026 - 08/10/2026)."),
+            ("Practical Focus:", " Daily problem-solving and coding tasks over passive theory."),
+            ("Real Deliverables:", " Students build production-ready software independently."),
+            ("Live Evaluation:", " Technical defense and live project demonstration.")
+        ]),
+        ("FINAL OUTCOME", "Grade A+ (91%)", [
+            ("Verified Credential:", " Certificate ID: BQTA26319 (Issued 08 Oct 2026)."),
+            ("Top Evaluation:", " Achieved 91% score in final code audit and project viva."),
+            ("Independent Capstone:", " Designed, engineered, and deployed the complete project."),
+            ("Key Achievement:", " Complete transition from classroom theory to live web app.")
+        ])
     ]
-    for b_title, b_desc in bullet_points1:
-        pr = tf1.add_paragraph()
-        pr.space_after = Pt(8)
-        r1 = pr.add_run()
-        r1.text = "• " + b_title
-        r1.font.name = "Arial"
-        r1.font.bold = True
-        r1.font.size = Pt(11.5)
-        r1.font.color.rgb = TEXT_DARK
-        r2 = pr.add_run()
-        r2.text = b_desc
-        r2.font.name = "Arial"
-        r2.font.size = Pt(11.5)
-        r2.font.color.rgb = TEXT_BODY
 
-    # Box 2: Training Structure & Mode
-    b2 = create_card(slide2, Inches(0.8) + col_w + col_gap, top_y, col_w, h_card)
-    tf2 = b2.text_frame
-    tf2.word_wrap = True
-    tf2.margin_left = tf2.margin_right = tf2.margin_top = Inches(0.28)
+    for i, (c_tag, c_title, c_items) in enumerate(cards2_data):
+        bx = create_card(slide2, Inches(0.8) + (col_w + col_gap) * i, top_y, col_w, h_card)
+        tf = bx.text_frame
+        tf.word_wrap = True
+        tf.margin_left = tf.margin_right = tf.margin_top = Inches(0.3)
 
-    p = tf2.paragraphs[0]
-    p.text = "INTERNSHIP STRUCTURE"
-    p.font.name = "Arial"
-    p.font.size = Pt(10.5)
-    p.font.bold = True
-    p.font.color.rgb = PRIMARY
-    p.space_after = Pt(4)
+        p = tf.paragraphs[0]
+        p.text = c_tag
+        p.font.name = "Arial"
+        p.font.size = Pt(11)
+        p.font.bold = True
+        p.font.color.rgb = PRIMARY
+        p.space_after = Pt(4)
 
-    p_title = tf2.add_paragraph()
-    p_title.text = "Mode & Pedagogy"
-    p_title.font.name = "Arial"
-    p_title.font.size = Pt(17)
-    p_title.font.bold = True
-    p_title.font.color.rgb = TEXT_DARK
-    p_title.space_after = Pt(10)
+        pt = tf.add_paragraph()
+        pt.text = c_title
+        pt.font.name = "Arial"
+        pt.font.size = Pt(18)
+        pt.font.bold = True
+        pt.font.color.rgb = TEXT_DARK
+        pt.space_after = Pt(14)
 
-    bullet_points2 = [
-        ("Duration:", " 2-Week Intensive Program (25 Sept 2026 - 08 Oct 2026)."),
-        ("Delivery Mode:", " 100% Online & Hands-on, combining live technical sessions with daily coding tasks."),
-        ("Learning Methodology:", " Practical exercise-first approach; students write production code rather than passive theory."),
-        ("Evaluation Rigor:", " Daily deliverables, milestone reviews, and final live viva evaluation with code demonstration.")
-    ]
-    for b_title, b_desc in bullet_points2:
-        pr = tf2.add_paragraph()
-        pr.space_after = Pt(8)
-        r1 = pr.add_run()
-        r1.text = "• " + b_title
-        r1.font.name = "Arial"
-        r1.font.bold = True
-        r1.font.size = Pt(11.5)
-        r1.font.color.rgb = TEXT_DARK
-        r2 = pr.add_run()
-        r2.text = b_desc
-        r2.font.name = "Arial"
-        r2.font.size = Pt(11.5)
-        r2.font.color.rgb = TEXT_BODY
-
-    # Box 3: Timeline & Capstone Focus
-    b3 = create_card(slide2, Inches(0.8) + (col_w + col_gap) * 2, top_y, col_w, h_card)
-    tf3 = b3.text_frame
-    tf3.word_wrap = True
-    tf3.margin_left = tf3.margin_right = tf3.margin_top = Inches(0.28)
-
-    p = tf3.paragraphs[0]
-    p.text = "PROGRAM TIMELINE"
-    p.font.name = "Arial"
-    p.font.size = Pt(10.5)
-    p.font.bold = True
-    p.font.color.rgb = PRIMARY
-    p.space_after = Pt(4)
-
-    p_title = tf3.add_paragraph()
-    p_title.text = "Milestones & Delivery"
-    p_title.font.name = "Arial"
-    p_title.font.size = Pt(17)
-    p_title.font.bold = True
-    p_title.font.color.rgb = TEXT_DARK
-    p_title.space_after = Pt(10)
-
-    bullet_points3 = [
-        ("Week 1 Milestone:", " Core Python mastery, object-oriented design, custom exceptions, file I/O, and SQLite storage."),
-        ("Week 2 Milestone:", " REST API integration (Open-Meteo), geospatial indexing, trilingual i18n localization engine."),
-        ("Independent Capstone:", " Designed and built the 'Live Weather Tracker' independently following mentor reviews."),
-        ("Final Outcome:", " Successfully achieved Grade A+ (91%) with verified certificate credential BQTA26319.")
-    ]
-    for b_title, b_desc in bullet_points3:
-        pr = tf3.add_paragraph()
-        pr.space_after = Pt(8)
-        r1 = pr.add_run()
-        r1.text = "• " + b_title
-        r1.font.name = "Arial"
-        r1.font.bold = True
-        r1.font.size = Pt(11.5)
-        r1.font.color.rgb = TEXT_DARK
-        r2 = pr.add_run()
-        r2.text = b_desc
-        r2.font.name = "Arial"
-        r2.font.size = Pt(11.5)
-        r2.font.color.rgb = TEXT_BODY
+        for it, idesc in c_items:
+            pr = tf.add_paragraph()
+            pr.space_after = Pt(10)
+            r1 = pr.add_run()
+            r1.text = "• " + it + " "
+            r1.font.name = "Arial"
+            r1.font.bold = True
+            r1.font.size = Pt(12)
+            r1.font.color.rgb = TEXT_DARK
+            r2 = pr.add_run()
+            r2.text = idesc
+            r2.font.name = "Arial"
+            r2.font.size = Pt(12)
+            r2.font.color.rgb = TEXT_BODY
 
     # ==========================================
     # SLIDE 3: Purpose and Objectives
     # ==========================================
     slide3 = prs.slides.add_slide(blank_layout)
     set_slide_background(slide3, BG_LIGHT)
-    add_header(slide3, "Internship Purpose, Motivation & Core Objectives", "Project Motivation", "03 / 12")
+    add_header(slide3, "Why This Project Matters", "Purpose & Motivation", "03 / 12")
 
-    # Left Column: Problem Motivation
-    card_l = create_card(slide3, Inches(0.8), Inches(1.72), Inches(5.65), Inches(5.25))
-    tf_l = card_l.text_frame
-    tf_l.word_wrap = True
-    tf_l.margin_left = tf_l.margin_right = tf_l.margin_top = Inches(0.3)
-
-    p = tf_l.paragraphs[0]
-    p.text = "WHY THIS INTERNSHIP & PROJECT?"
-    p.font.name = "Arial"
-    p.font.size = Pt(10.5)
-    p.font.bold = True
-    p.font.color.rgb = PRIMARY
-    p.space_after = Pt(4)
-
-    p_t = tf_l.add_paragraph()
-    p_t.text = "Motivation & Problem Context"
-    p_t.font.name = "Arial"
-    p_t.font.size = Pt(17)
-    p_t.font.bold = True
-    p_t.font.color.rgb = TEXT_DARK
-    p_t.space_after = Pt(12)
-
-    m_points = [
-        ("Bridging Academic Theory with Production Code:", " College coursework focuses on synthetic CLI scripts; the primary goal was to architect an end-to-end web system with real API feeds, caching, and scalable state handling."),
-        ("The Rural Meteorological Divide in India:", " Commercial weather applications (AccuWeather, Apple Weather) cater predominantly to tier-1 metropolitan cities. Over 550,000 rural villages and 763 districts are neglected or buried behind paywalls."),
-        ("Eliminating Paywalls & Vendor Lock-In:", " Weather services often enforce costly API key restrictions. This project was motivated by building a completely free, zero-key, open-access intelligence platform for common citizens and farmers.")
+    cards3_data = [
+        ("THE PROBLEM", "What is Broken Today?", [
+            ("Metro-Centric Apps:", " Mainstream weather apps focus only on Tier-1 cities."),
+            ("550,000+ Villages Left Out:", " Rural districts and villages are neglected or missing."),
+            ("Language Barrier:", " English-only interfaces lock out rural Indian farmers."),
+            ("Expensive Paywalls:", " Commercial APIs demand costly subscriptions and keys.")
+        ]),
+        ("OUR SOLUTION", "Live Weather Tracker", [
+            ("All-India Coverage:", " All 763 districts and 550,000+ villages supported."),
+            ("Trilingual First:", " Full support in English, Hindi (हिन्दी), and Bhojpuri (भोजपुरी)."),
+            ("100% Free Forever:", " Zero API keys, zero subscription fees, zero user ads."),
+            ("Agro-Intelligence:", " Dedicated soil moisture, soil temperature, and rain history.")
+        ]),
+        ("MY GOALS", "What I Aimed to Achieve", [
+            ("Real-World Python:", " Move from textbook CLI scripts to a deployed web system."),
+            ("Instant Local Search:", " Build a sub-15ms search engine for 565,000+ places."),
+            ("Farmer Focus:", " Deliver practical farming advice instead of confusing charts."),
+            ("Dual Deployment:", " Deploy on both Streamlit and Cloudflare serverless edge.")
+        ])
     ]
-    for pt, desc in m_points:
-        pr = tf_l.add_paragraph()
-        pr.space_after = Pt(9)
-        r1 = pr.add_run()
-        r1.text = "• " + pt
-        r1.font.name = "Arial"
-        r1.font.bold = True
-        r1.font.size = Pt(11.5)
-        r1.font.color.rgb = TEXT_DARK
-        r2 = pr.add_run()
-        r2.text = desc
-        r2.font.name = "Arial"
-        r2.font.size = Pt(11.5)
-        r2.font.color.rgb = TEXT_BODY
 
-    # Right Column Top: Main Objectives
-    card_rt = create_card(slide3, Inches(6.8), Inches(1.72), Inches(5.73), Inches(2.5))
-    tf_rt = card_rt.text_frame
-    tf_rt.word_wrap = True
-    tf_rt.margin_left = tf_rt.margin_right = tf_rt.margin_top = Inches(0.28)
+    for i, (c_tag, c_title, c_items) in enumerate(cards3_data):
+        bx = create_card(slide3, Inches(0.8) + (col_w + col_gap) * i, top_y, col_w, h_card)
+        tf = bx.text_frame
+        tf.word_wrap = True
+        tf.margin_left = tf.margin_right = tf.margin_top = Inches(0.3)
 
-    p = tf_rt.paragraphs[0]
-    p.text = "PRIMARY TECHNICAL OBJECTIVES"
-    p.font.name = "Arial"
-    p.font.size = Pt(10.5)
-    p.font.bold = True
-    p.font.color.rgb = PRIMARY
-    p.space_after = Pt(3)
+        p = tf.paragraphs[0]
+        p.text = c_tag
+        p.font.name = "Arial"
+        p.font.size = Pt(11)
+        p.font.bold = True
+        p.font.color.rgb = PRIMARY
+        p.space_after = Pt(4)
 
-    p_t = tf_rt.add_paragraph()
-    p_t.text = "What I Aimed to Build"
-    p_t.font.name = "Arial"
-    p_t.font.size = Pt(15)
-    p_t.font.bold = True
-    p_t.font.color.rgb = TEXT_DARK
-    p_t.space_after = Pt(6)
+        pt = tf.add_paragraph()
+        pt.text = c_title
+        pt.font.name = "Arial"
+        pt.font.size = Pt(18)
+        pt.font.bold = True
+        pt.font.color.rgb = TEXT_DARK
+        pt.space_after = Pt(14)
 
-    objs = [
-        ("All-India Coverage: ", "Index and search 565,000+ Indian villages and all 763 districts with instant sub-millisecond autocomplete."),
-        ("Agro-Meteorology: ", "Deliver actionable soil moisture, soil temperature (6cm), and rainfall history specifically for farmers."),
-        ("Trilingual Accessibility: ", "Provide full localization in English, Hindi, and Bhojpuri without cloud API translation lag.")
-    ]
-    for ot, od in objs:
-        pr = tf_rt.add_paragraph()
-        pr.space_after = Pt(3)
-        r1 = pr.add_run()
-        r1.text = "• " + ot
-        r1.font.name = "Arial"
-        r1.font.bold = True
-        r1.font.size = Pt(11)
-        r1.font.color.rgb = TEXT_DARK
-        r2 = pr.add_run()
-        r2.text = od
-        r2.font.name = "Arial"
-        r2.font.size = Pt(11)
-        r2.font.color.rgb = TEXT_BODY
-
-    # Right Column Bottom: Expected Skills
-    card_rb = create_card(slide3, Inches(6.8), Inches(4.45), Inches(5.73), Inches(2.52))
-    tf_rb = card_rb.text_frame
-    tf_rb.word_wrap = True
-    tf_rb.margin_left = tf_rb.margin_right = tf_rb.margin_top = Inches(0.28)
-
-    p = tf_rb.paragraphs[0]
-    p.text = "KEY SKILLS DEVELOPED"
-    p.font.name = "Arial"
-    p.font.size = Pt(10.5)
-    p.font.bold = True
-    p.font.color.rgb = PRIMARY
-    p.space_after = Pt(3)
-
-    p_t = tf_rb.add_paragraph()
-    p_t.text = "Software Engineering Competencies"
-    p_t.font.name = "Arial"
-    p_t.font.size = Pt(15)
-    p_t.font.bold = True
-    p_t.font.color.rgb = TEXT_DARK
-    p_t.space_after = Pt(6)
-
-    skills = [
-        ("Modular Python: ", "Separation of concerns into decoupled modules (weather, geo, places, i18n, ui)."),
-        ("Database & Compression: ", "Managing and querying compressed SQLite (.sqlite.gz) datasets on demand."),
-        ("Dual Deployment: ", "Deploying reactive Python apps on Streamlit Cloud and static edge apps on Cloudflare Pages.")
-    ]
-    for st, sd in skills:
-        pr = tf_rb.add_paragraph()
-        pr.space_after = Pt(3)
-        r1 = pr.add_run()
-        r1.text = "• " + st
-        r1.font.name = "Arial"
-        r1.font.bold = True
-        r1.font.size = Pt(11)
-        r1.font.color.rgb = TEXT_DARK
-        r2 = pr.add_run()
-        r2.text = sd
-        r2.font.name = "Arial"
-        r2.font.size = Pt(11)
-        r2.font.color.rgb = TEXT_BODY
+        for it, idesc in c_items:
+            pr = tf.add_paragraph()
+            pr.space_after = Pt(10)
+            r1 = pr.add_run()
+            r1.text = "• " + it + " "
+            r1.font.name = "Arial"
+            r1.font.bold = True
+            r1.font.size = Pt(12)
+            r1.font.color.rgb = TEXT_DARK
+            r2 = pr.add_run()
+            r2.text = idesc
+            r2.font.name = "Arial"
+            r2.font.size = Pt(12)
+            r2.font.color.rgb = TEXT_BODY
 
     # ==========================================
     # SLIDE 4: Technologies / Tools / Skills Learned
     # ==========================================
     slide4 = prs.slides.add_slide(blank_layout)
     set_slide_background(slide4, BG_LIGHT)
-    add_header(slide4, "Technologies, Frameworks & Development Tools", "Technology Stack", "04 / 12")
+    add_header(slide4, "Tools & Technologies Learned", "Technology Stack", "04 / 12")
 
     grid_w = Inches(5.68)
-    grid_h = Inches(2.52)
+    grid_h = Inches(2.45)
     left1 = Inches(0.8)
     left2 = Inches(6.85)
-    row1_t = Inches(1.72)
+    row1_t = Inches(1.8)
     row2_t = Inches(4.45)
 
-    # Card 1: Core Programming & Frontend
-    c4_1 = create_card(slide4, left1, row1_t, grid_w, grid_h)
-    tf4_1 = c4_1.text_frame
-    tf4_1.word_wrap = True
-    tf4_1.margin_left = tf4_1.margin_right = tf4_1.margin_top = Inches(0.24)
-    p = tf4_1.paragraphs[0]
-    p.text = "1. PROGRAMMING & CLIENT-SIDE"
-    p.font.name = "Arial"
-    p.font.size = Pt(10.5)
-    p.font.bold = True
-    p.font.color.rgb = PRIMARY
-    p.space_after = Pt(3)
-    p_title = tf4_1.add_paragraph()
-    p_title.text = "Core Languages & UI"
-    p_title.font.name = "Arial"
-    p_title.font.size = Pt(15)
-    p_title.font.bold = True
-    p_title.font.color.rgb = TEXT_DARK
-    p_title.space_after = Pt(6)
-
-    t1_bullets = [
-        ("Python 3.10+:", " Object-oriented design, custom exceptions, lazy loading, in-memory decompressions."),
-        ("JavaScript (ES6+):", " Client-side DOM manipulation, async/await fetch, live tabs, and UI toggles."),
-        ("HTML5 & Modern CSS3:", " Responsive flex/grid cards, glassmorphic styles, and animated sky condition banners.")
+    cards4_data = [
+        (left1, row1_t, "1. CORE LANGUAGES & UI", "Python & Frontend", [
+            ("Python 3.10+:", " Object-oriented design, modular code, custom error handling."),
+            ("JavaScript (ES6+):", " Dynamic tabs, asynchronous API fetch, and theme toggling."),
+            ("HTML5 & Modern CSS3:", " Clean responsive card layouts and animated sky themes.")
+        ]),
+        (left2, row1_t, "2. APIS & GEOSPATIAL DATA", "Open Data Feeds", [
+            ("Open-Meteo REST API:", " Hourly/daily weather and agricultural telemetry with zero API keys."),
+            ("GeoNames India:", " Open dataset covering 565,000+ villages, tehsils, and towns."),
+            ("Photon & OSM:", " Free geocoding fallback for PIN codes and remote hamlets.")
+        ]),
+        (left1, row2_t, "3. STORAGE & DATABASES", "SQLite & Edge SQL", [
+            ("SQLite3 (.sqlite.gz):", " Compressed local database enabling sub-15ms village searches."),
+            ("Cloudflare D1:", " Serverless SQL database running queries at the global edge."),
+            ("Pandas:", " Data restructuring for 7-day temperature trends and rainfall history.")
+        ]),
+        (left2, row2_t, "4. CLOUD & DEV TOOLS", "Deployment & Version Control", [
+            ("Streamlit:", " Rapid interactive data application framework in pure Python."),
+            ("Cloudflare Pages:", " Edge serverless architecture with global CDN caching."),
+            ("Git & GitHub:", " Version control repository (`sonalikumari09/live-weather-tracker`).")
+        ])
     ]
-    for bt, bd in t1_bullets:
-        pr = tf4_1.add_paragraph()
-        pr.space_after = Pt(3)
-        r1 = pr.add_run()
-        r1.text = "• " + bt
-        r1.font.name = "Arial"
-        r1.font.bold = True
-        r1.font.size = Pt(11)
-        r1.font.color.rgb = TEXT_DARK
-        r2 = pr.add_run()
-        r2.text = bd
-        r2.font.name = "Arial"
-        r2.font.size = Pt(11)
-        r2.font.color.rgb = TEXT_BODY
 
-    # Card 2: APIs & Meteorological Data
-    c4_2 = create_card(slide4, left2, row1_t, grid_w, grid_h)
-    tf4_2 = c4_2.text_frame
-    tf4_2.word_wrap = True
-    tf4_2.margin_left = tf4_2.margin_right = tf4_2.margin_top = Inches(0.24)
-    p = tf4_2.paragraphs[0]
-    p.text = "2. APIS & GEOSPATIAL DATA"
-    p.font.name = "Arial"
-    p.font.size = Pt(10.5)
-    p.font.bold = True
-    p.font.color.rgb = PRIMARY
-    p.space_after = Pt(3)
-    p_title = tf4_2.add_paragraph()
-    p_title.text = "Data Feeds & Geocoding"
-    p_title.font.name = "Arial"
-    p_title.font.size = Pt(15)
-    p_title.font.bold = True
-    p_title.font.color.rgb = TEXT_DARK
-    p_title.space_after = Pt(6)
+    for c_left, c_top, c_tag, c_title, c_items in cards4_data:
+        bx = create_card(slide4, c_left, c_top, grid_w, grid_h)
+        tf = bx.text_frame
+        tf.word_wrap = True
+        tf.margin_left = tf.margin_right = tf.margin_top = Inches(0.26)
 
-    t2_bullets = [
-        ("Open-Meteo REST API:", " Hourly & 7-day meteorological forecasts, soil moisture & temperature (Zero API Key)."),
-        ("GeoNames India Database:", " CC BY 4.0 extract covering 565,000+ Indian villages, tehsils, and towns."),
-        ("Photon & Nominatim:", " OpenStreetMap-backed autocomplete fallback for PIN codes and remote hamlets.")
-    ]
-    for bt, bd in t2_bullets:
-        pr = tf4_2.add_paragraph()
-        pr.space_after = Pt(3)
-        r1 = pr.add_run()
-        r1.text = "• " + bt
-        r1.font.name = "Arial"
-        r1.font.bold = True
-        r1.font.size = Pt(11)
-        r1.font.color.rgb = TEXT_DARK
-        r2 = pr.add_run()
-        r2.text = bd
-        r2.font.name = "Arial"
-        r2.font.size = Pt(11)
-        r2.font.color.rgb = TEXT_BODY
+        p = tf.paragraphs[0]
+        p.text = c_tag
+        p.font.name = "Arial"
+        p.font.size = Pt(11)
+        p.font.bold = True
+        p.font.color.rgb = PRIMARY
+        p.space_after = Pt(2)
 
-    # Card 3: Storage & Databases
-    c4_3 = create_card(slide4, left1, row2_t, grid_w, grid_h)
-    tf4_3 = c4_3.text_frame
-    tf4_3.word_wrap = True
-    tf4_3.margin_left = tf4_3.margin_right = tf4_3.margin_top = Inches(0.24)
-    p = tf4_3.paragraphs[0]
-    p.text = "3. STORAGE & DATA WRANGLING"
-    p.font.name = "Arial"
-    p.font.size = Pt(10.5)
-    p.font.bold = True
-    p.font.color.rgb = PRIMARY
-    p.space_after = Pt(3)
-    p_title = tf4_3.add_paragraph()
-    p_title.text = "SQLite & Edge SQL"
-    p_title.font.name = "Arial"
-    p_title.font.size = Pt(15)
-    p_title.font.bold = True
-    p_title.font.color.rgb = TEXT_DARK
-    p_title.space_after = Pt(6)
+        pt = tf.add_paragraph()
+        pt.text = c_title
+        pt.font.name = "Arial"
+        pt.font.size = Pt(16)
+        pt.font.bold = True
+        pt.font.color.rgb = TEXT_DARK
+        pt.space_after = Pt(8)
 
-    t3_bullets = [
-        ("SQLite3 (.sqlite.gz):", " Gzip-compressed bundled database for sub-10ms local prefix search on villages."),
-        ("Cloudflare D1:", " Distributed SQLite edge database for instant serverless query lookups worldwide."),
-        ("Pandas Library:", " Tabular data restructuring and 7-day temperature/rain trend calculations.")
-    ]
-    for bt, bd in t3_bullets:
-        pr = tf4_3.add_paragraph()
-        pr.space_after = Pt(3)
-        r1 = pr.add_run()
-        r1.text = "• " + bt
-        r1.font.name = "Arial"
-        r1.font.bold = True
-        r1.font.size = Pt(11)
-        r1.font.color.rgb = TEXT_DARK
-        r2 = pr.add_run()
-        r2.text = bd
-        r2.font.name = "Arial"
-        r2.font.size = Pt(11)
-        r2.font.color.rgb = TEXT_BODY
-
-    # Card 4: Deployment & Dev Tools
-    c4_4 = create_card(slide4, left2, row2_t, grid_w, grid_h)
-    tf4_4 = c4_4.text_frame
-    tf4_4.word_wrap = True
-    tf4_4.margin_left = tf4_4.margin_right = tf4_4.margin_top = Inches(0.24)
-    p = tf4_4.paragraphs[0]
-    p.text = "4. DEPLOYMENT & DEV TOOLS"
-    p.font.name = "Arial"
-    p.font.size = Pt(10.5)
-    p.font.bold = True
-    p.font.color.rgb = PRIMARY
-    p.space_after = Pt(3)
-    p_title = tf4_4.add_paragraph()
-    p_title.text = "Cloud Hosting & Version Control"
-    p_title.font.name = "Arial"
-    p_title.font.size = Pt(15)
-    p_title.font.bold = True
-    p_title.font.color.rgb = TEXT_DARK
-    p_title.space_after = Pt(6)
-
-    t4_bullets = [
-        ("Streamlit Web Framework:", " Interactive data application development with state caching (@st.cache_data)."),
-        ("Cloudflare Pages & Workers:", " Serverless edge architecture (`functions/api/`) and global CDN edge caching."),
-        ("Git & GitHub / Linux:", " Source management (`sonalikumari09/live-weather-tracker`), bash automation scripts.")
-    ]
-    for bt, bd in t4_bullets:
-        pr = tf4_4.add_paragraph()
-        pr.space_after = Pt(3)
-        r1 = pr.add_run()
-        r1.text = "• " + bt
-        r1.font.name = "Arial"
-        r1.font.bold = True
-        r1.font.size = Pt(11)
-        r1.font.color.rgb = TEXT_DARK
-        r2 = pr.add_run()
-        r2.text = bd
-        r2.font.name = "Arial"
-        r2.font.size = Pt(11)
-        r2.font.color.rgb = TEXT_BODY
+        for it, idesc in c_items:
+            pr = tf.add_paragraph()
+            pr.space_after = Pt(4)
+            r1 = pr.add_run()
+            r1.text = "• " + it + " "
+            r1.font.name = "Arial"
+            r1.font.bold = True
+            r1.font.size = Pt(11.5)
+            r1.font.color.rgb = TEXT_DARK
+            r2 = pr.add_run()
+            r2.text = idesc
+            r2.font.name = "Arial"
+            r2.font.size = Pt(11.5)
+            r2.font.color.rgb = TEXT_BODY
 
     # ==========================================
     # SLIDE 5: Work / Training Completed
     # ==========================================
     slide5 = prs.slides.add_slide(blank_layout)
     set_slide_background(slide5, BG_LIGHT)
-    add_header(slide5, "Practical Work & Training Modules Completed", "Work Completed", "05 / 12")
+    add_header(slide5, "Training Modules & Work Done", "Work Completed", "05 / 12")
 
     mod_w = Inches(2.72)
     mod_gap = Inches(0.28)
-    mod_h = Inches(3.65)
-    mod_y = Inches(1.72)
+    mod_h = Inches(3.6)
+    mod_y = Inches(1.8)
 
     modules_data = [
-        ("MODULE 1", "Python Core & Architecture", [
-            ("OOP Principles:", " Classes, encapsulation, and modular design."),
-            ("Error Handling:", " Custom exception hierarchy for network timeouts."),
-            ("Data Compression:", " Gzip decompression of bundled databases into RAM."),
-            ("Code Standards:", " PEP 8 compliance and strict typing.")
+        ("MODULE 1", "Python Core", [
+            ("OOP & Structure:", " Clean modular design across decoupled scripts."),
+            ("Error Handling:", " Resilient handling of timeouts and network drops."),
+            ("Compression:", " On-demand gzip decompression of databases into RAM.")
         ]),
-        ("MODULE 2", "APIs & Data Engineering", [
-            ("REST Client:", " Built robust HTTP client using Python Requests."),
-            ("Open-Meteo Integration:", " Parsed multi-layer weather and soil parameters."),
-            ("Payload Sanitization:", " Resilient JSON extraction and type validation."),
-            ("Failure Recovery:", " Fallback strategies for offline/slow connections.")
+        ("MODULE 2", "REST APIs", [
+            ("HTTP Client:", " Built API queries with Python Requests."),
+            ("Open-Meteo Integration:", " Parsed multi-layer weather and soil data."),
+            ("Data Cleaning:", " Extracted clean JSON without crashes.")
         ]),
-        ("MODULE 3", "Database & Search Index", [
-            ("GeoNames Parsing:", " Processed 565,000+ Indian geo-coordinates."),
-            ("SQLite Storage:", " Created lightweight indexed database for India places."),
-            ("Ranked Search:", " Hierarchical sorting prioritizing cities & districts."),
-            ("Hybrid Fallback:", " Nominatim & Photon fallback for unlisted hamlets.")
+        ("MODULE 3", "Fast Search", [
+            ("565k Records:", " Indexed 565,000+ Indian geo-coordinates in SQLite."),
+            ("Prefix Autocomplete:", " Instant sub-15ms search as the user types."),
+            ("Graceful Fallback:", " Photon & Nominatim fallback for missing hamlets.")
         ]),
-        ("MODULE 4", "UI & Vernacular Localization", [
-            ("Trilingual i18n:", " Built instant dictionary for English, Hindi, Bhojpuri."),
-            ("Streamlit UI:", " Designed responsive tabs and interactive selectors."),
-            ("Dynamic Styling:", " Crafted custom CSS themes and animated sky effects."),
-            ("Edge Adaptation:", " Ported application to Cloudflare Pages edge.")
+        ("MODULE 4", "UI & Deployment", [
+            ("Trilingual Engine:", " Built instant dictionary (English, Hindi, Bhojpuri)."),
+            ("Responsive UI:", " Streamlit tabs, sky animations, and light/dark mode."),
+            ("Cloud Hosting:", " Deployed on Streamlit Cloud & Cloudflare Pages.")
         ])
     ]
 
@@ -738,12 +481,12 @@ def create_presentation():
         bx = create_card(slide5, Inches(0.8) + (mod_w + mod_gap) * i, mod_y, mod_w, mod_h)
         tf = bx.text_frame
         tf.word_wrap = True
-        tf.margin_left = tf.margin_right = tf.margin_top = Inches(0.2)
+        tf.margin_left = tf.margin_right = tf.margin_top = Inches(0.22)
 
         p = tf.paragraphs[0]
         p.text = m_tag
         p.font.name = "Arial"
-        p.font.size = Pt(10)
+        p.font.size = Pt(10.5)
         p.font.bold = True
         p.font.color.rgb = PRIMARY
         p.space_after = Pt(2)
@@ -751,52 +494,52 @@ def create_presentation():
         pt = tf.add_paragraph()
         pt.text = m_title
         pt.font.name = "Arial"
-        pt.font.size = Pt(13)
+        pt.font.size = Pt(15)
         pt.font.bold = True
         pt.font.color.rgb = TEXT_DARK
-        pt.space_after = Pt(8)
+        pt.space_after = Pt(10)
 
         for it, idesc in m_items:
             pr = tf.add_paragraph()
-            pr.space_after = Pt(4)
+            pr.space_after = Pt(6)
             r1 = pr.add_run()
-            r1.text = "• " + it
+            r1.text = "• " + it + " "
             r1.font.name = "Arial"
             r1.font.bold = True
-            r1.font.size = Pt(10.5)
+            r1.font.size = Pt(11)
             r1.font.color.rgb = TEXT_DARK
             r2 = pr.add_run()
             r2.text = idesc
             r2.font.name = "Arial"
-            r2.font.size = Pt(10.5)
+            r2.font.size = Pt(11)
             r2.font.color.rgb = TEXT_BODY
 
     # Bottom Banner: Assessment & Certification
-    bot_card = create_card(slide5, Inches(0.8), Inches(5.6), Inches(11.733), Inches(1.35), EMERALD_BG, EMERALD_BORDER, 1.5)
+    bot_card = create_card(slide5, Inches(0.8), Inches(5.65), Inches(11.733), Inches(1.25), EMERALD_BG, EMERALD_BORDER, 1.5)
     tf_bot = bot_card.text_frame
     tf_bot.word_wrap = True
     tf_bot.margin_left = tf_bot.margin_right = Inches(0.3)
     tf_bot.margin_top = Inches(0.18)
 
     p = tf_bot.paragraphs[0]
-    p.text = "TRAINING EVALUATION & CERTIFICATION OUTCOME"
+    p.text = "TRAINING EVALUATION & CERTIFICATE"
     p.font.name = "Arial"
     p.font.size = Pt(11)
     p.font.bold = True
     p.font.color.rgb = EMERALD_TEXT
-    p.space_after = Pt(4)
+    p.space_after = Pt(3)
 
     p_desc = tf_bot.add_paragraph()
     r1 = p_desc.add_run()
-    r1.text = "Successfully satisfied all weekly project deliverables, technical code audits, and final capstone evaluation. "
+    r1.text = "Successfully satisfied all weekly assignments, code audits, and capstone evaluation. "
     r1.font.name = "Arial"
-    r1.font.size = Pt(11.5)
+    r1.font.size = Pt(12)
     r1.font.color.rgb = RGBColor(15, 23, 42)
 
     r2 = p_desc.add_run()
-    r2.text = "Awarded Grade A+ (91%) by INTELLIO INTERN (AICTE Recognized). Certificate ID: BQTA26319 (Issued 08 Oct 2026)."
+    r2.text = "Awarded Grade A+ (91%) by INTELLIO INTERN (AICTE Recognized). Certificate ID: BQTA26319."
     r2.font.name = "Arial"
-    r2.font.size = Pt(11.5)
+    r2.font.size = Pt(12)
     r2.font.bold = True
     r2.font.color.rgb = EMERALD_TEXT
 
@@ -805,107 +548,107 @@ def create_presentation():
     # ==========================================
     slide6 = prs.slides.add_slide(blank_layout)
     set_slide_background(slide6, BG_LIGHT)
-    add_header(slide6, "Project Overview - Live Weather Tracker", "Project Architecture", "06 / 12")
+    add_header(slide6, "Live Weather Tracker at a Glance", "Project Overview", "06 / 12")
 
-    # Left Column: Problem & Solution
-    card6_l = create_card(slide6, Inches(0.8), Inches(1.72), Inches(5.65), Inches(5.25))
+    # Left: 5 Modes
+    card6_l = create_card(slide6, Inches(0.8), Inches(1.8), Inches(5.65), Inches(5.1))
     tf6_l = card6_l.text_frame
     tf6_l.word_wrap = True
     tf6_l.margin_left = tf6_l.margin_right = tf6_l.margin_top = Inches(0.3)
 
     p = tf6_l.paragraphs[0]
-    p.text = "PROBLEM STATEMENT & VALUE PROPOSITION"
+    p.text = "5 FOCUSED MODES"
     p.font.name = "Arial"
-    p.font.size = Pt(10.5)
+    p.font.size = Pt(11)
     p.font.bold = True
     p.font.color.rgb = PRIMARY
     p.space_after = Pt(4)
 
     pt = tf6_l.add_paragraph()
-    pt.text = "Hyperlocal Weather for All India"
+    pt.text = "Core Features"
     pt.font.name = "Arial"
-    pt.font.size = Pt(17)
+    pt.font.size = Pt(18)
     pt.font.bold = True
     pt.font.color.rgb = TEXT_DARK
-    pt.space_after = Pt(10)
+    pt.space_after = Pt(12)
 
-    p6_items = [
-        ("The Problem:", " Mainstream weather apps cater only to major metropolitan cities, bombard users with ads, enforce expensive API subscriptions, and lack rural language support."),
-        ("Our Solution:", " Live Weather Tracker is a fast, clean, zero-key, privacy-friendly meteorological web portal providing instant weather forecasts for 763 districts and 550,000+ villages across India."),
-        ("Target Users:", " Farmers needing soil & rain data, daily rural commuters, interstate travelers, and citizens seeking ad-free forecasts."),
-        ("Vernacular First:", " Native trilingual support in English, Hindi (हिन्दी), and Bhojpuri (भोजपुरी) for maximum regional inclusivity.")
+    modes = [
+        ("1. Single Place:", " Current temp, feels-like, wind, humidity, and 7-day forecast."),
+        ("2. Farmer Mode:", " Soil temperature (6cm), soil moisture, 7-day rain, and farming tips."),
+        ("3. Travel Packer:", " Smart clothing advice based on temperature and rain probability."),
+        ("4. Morning Alerts:", " Early warnings for heatwaves, coldwaves, storms, and downpours."),
+        ("5. Compare Places:", " Side-by-side weather comparisons for 2 to 4 locations.")
     ]
-    for it, idesc in p6_items:
+    for mt, mdesc in modes:
         pr = tf6_l.add_paragraph()
         pr.space_after = Pt(8)
         r1 = pr.add_run()
-        r1.text = "• " + it
+        r1.text = mt + " "
         r1.font.name = "Arial"
         r1.font.bold = True
-        r1.font.size = Pt(11.5)
-        r1.font.color.rgb = TEXT_DARK
+        r1.font.size = Pt(12)
+        r1.font.color.rgb = PRIMARY
         r2 = pr.add_run()
-        r2.text = idesc
+        r2.text = mdesc
         r2.font.name = "Arial"
-        r2.font.size = Pt(11.5)
+        r2.font.size = Pt(12)
         r2.font.color.rgb = TEXT_BODY
 
-    # Right Column: 5 Modes & Architecture
-    card6_r = create_card(slide6, Inches(6.8), Inches(1.72), Inches(5.73), Inches(5.25))
+    # Right: High Impact Numbers & Flow
+    card6_r = create_card(slide6, Inches(6.8), Inches(1.8), Inches(5.73), Inches(5.1))
     tf6_r = card6_r.text_frame
     tf6_r.word_wrap = True
     tf6_r.margin_left = tf6_r.margin_right = tf6_r.margin_top = Inches(0.3)
 
     p = tf6_r.paragraphs[0]
-    p.text = "5 APPLICATION MODES & WORKFLOW"
+    p.text = "IMPACT & ARCHITECTURE"
     p.font.name = "Arial"
-    p.font.size = Pt(10.5)
+    p.font.size = Pt(11)
     p.font.bold = True
     p.font.color.rgb = PRIMARY
     p.space_after = Pt(4)
 
     pt = tf6_r.add_paragraph()
-    pt.text = "Feature Capabilities"
+    pt.text = "Key Numbers"
     pt.font.name = "Arial"
-    pt.font.size = Pt(17)
+    pt.font.size = Pt(18)
     pt.font.bold = True
     pt.font.color.rgb = TEXT_DARK
-    pt.space_after = Pt(10)
+    pt.space_after = Pt(12)
 
-    modes = [
-        ("1. Single Place:", " Real-time temp, feels-like, wind, humidity, 7-day forecast."),
-        ("2. Farmer Mode:", " Soil temperature (6cm), moisture levels, 7-day rain history, and localized agricultural advisories."),
-        ("3. Travel Packer:", " Smart packing recommendations based on rain probability, temperature, and wind speed."),
-        ("4. Morning Alerts:", " Early warning system for extreme heatwaves, coldwaves, severe thunderstorms, or heavy downpours."),
-        ("5. Compare Places:", " Side-by-side weather comparisons for 2 to 4 locations.")
+    stats = [
+        ("550,000+ Villages:", " Every Indian village, tehsil, and district indexed."),
+        ("3 Languages:", " Native English, Hindi (हिन्दी), and Bhojpuri (भोजपुरी)."),
+        ("Zero API Keys:", " 100% free with no rate limits or user tracking."),
+        ("Dual Deployment:", " Runs on Streamlit Cloud and Cloudflare Pages Edge.")
     ]
-    for mt, mdesc in modes:
+    for st, sdesc in stats:
         pr = tf6_r.add_paragraph()
-        pr.space_after = Pt(5)
+        pr.space_after = Pt(8)
         r1 = pr.add_run()
-        r1.text = mt
+        r1.text = "• " + st + " "
         r1.font.name = "Arial"
         r1.font.bold = True
-        r1.font.size = Pt(11.5)
-        r1.font.color.rgb = PRIMARY
+        r1.font.size = Pt(12)
+        r1.font.color.rgb = TEXT_DARK
         r2 = pr.add_run()
-        r2.text = mdesc
+        r2.text = sdesc
         r2.font.name = "Arial"
-        r2.font.size = Pt(11.5)
+        r2.font.size = Pt(12)
         r2.font.color.rgb = TEXT_BODY
 
     pr_pipe = tf6_r.add_paragraph()
     pr_pipe.space_before = Pt(8)
     r1 = pr_pipe.add_run()
-    r1.text = "Pipeline: "
+    r1.text = "Simple Flow: "
     r1.font.name = "Arial"
     r1.font.bold = True
-    r1.font.size = Pt(11)
+    r1.font.size = Pt(11.5)
     r1.font.color.rgb = TEXT_DARK
     r2 = pr_pipe.add_run()
-    r2.text = "Query ➔ Compressed SQLite / Edge D1 ➔ Open-Meteo REST ➔ i18n Engine ➔ Dynamic Client View"
+    r2.text = "Search ➔ Local SQLite ➔ Open-Meteo API ➔ Instant i18n ➔ UI"
     r2.font.name = "Arial"
-    r2.font.size = Pt(11)
+    r2.font.size = Pt(11.5)
     r2.font.bold = True
     r2.font.color.rgb = PRIMARY
 
@@ -914,235 +657,135 @@ def create_presentation():
     # ==========================================
     slide7 = prs.slides.add_slide(blank_layout)
     set_slide_background(slide7, BG_LIGHT)
-    add_header(slide7, "My Individual Contribution & Core Modules Built", "Individual Contribution", "07 / 12")
+    add_header(slide7, "What I Built Individually", "My Contribution", "07 / 12")
 
-    c7_1 = create_card(slide7, left1, row1_t, grid_w, grid_h)
-    tf7_1 = c7_1.text_frame
-    tf7_1.word_wrap = True
-    tf7_1.margin_left = tf7_1.margin_right = tf7_1.margin_top = Inches(0.24)
-    p = tf7_1.paragraphs[0]
-    p.text = "1. WEATHER ENGINE & AGRO-LOGIC (weather.py)"
-    p.font.name = "Arial"
-    p.font.size = Pt(10.5)
-    p.font.bold = True
-    p.font.color.rgb = PRIMARY
-    p.space_after = Pt(3)
-    p_t = tf7_1.add_paragraph()
-    p_t.text = "Meteorological Core"
-    p_t.font.name = "Arial"
-    p_t.font.size = Pt(15)
-    p_t.font.bold = True
-    p_t.font.color.rgb = TEXT_DARK
-    p_t.space_after = Pt(6)
-
-    c1_pts = [
-        ("API Consumption: ", "Designed REST endpoints fetching current, 7-day, and agricultural telemetry from Open-Meteo."),
-        ("Farmer Intelligence: ", "Synthesized 6cm soil warmth, root moisture, and 7-day rain accumulation into practical advisories."),
-        ("Rule-Based Triggers: ", "Built dynamic logic for Travel Packer checklists and Morning Severe Weather Alert checks.")
+    cards7_data = [
+        (left1, row1_t, "1. WEATHER CORE (weather.py)", "Meteorological Engine", [
+            ("API Data Pipeline:", " Fetched real-time conditions, 7-day daily forecasts, and soil telemetry."),
+            ("Farmer Advice Logic:", " Synthesized soil temperature, moisture, and rain history into clear tips."),
+            ("Automated Checks:", " Created logic for Travel Packer checklists and Severe Weather Morning Alerts.")
+        ]),
+        (left2, row1_t, "2. GEO-SEARCH (geo.py, places.py)", "Instant Search Engine", [
+            ("Compressed Database:", " Built `india_places.sqlite.gz` with 565,000+ Indian geo-entities."),
+            ("Fast Prefix Search:", " Implemented sub-15ms SQL autocomplete prioritizing districts and towns."),
+            ("Smart Fallbacks:", " Integrated Photon and Nominatim for PIN codes and unlisted hamlets.")
+        ]),
+        (left1, row2_t, "3. LOCALIZATION (i18n.py)", "Trilingual Translation", [
+            ("Zero-Lag Dictionary:", " Built in-memory translation for English, Hindi, and Bhojpuri."),
+            ("Full UI Coverage:", " Localized all labels, weather conditions, farming tips, and packing advice."),
+            ("Natural Regional Phrasing:", " Used cultural, relatable phrasing for rural Indian communities.")
+        ]),
+        (left2, row2_t, "4. FRONTEND & CLOUD", "UI & Serverless Edge", [
+            ("Interactive UI (`app.py`):", " Created Streamlit app with theme switcher and animated sky banners."),
+            ("Cloudflare Serverless:", " Configured edge functions (`functions/api/`) and static frontend."),
+            ("Smart Caching:", " Added tiered caching (`@st.cache_data`) cutting API calls by >80%.")
+        ])
     ]
-    for pt, pdesc in c1_pts:
-        pr = tf7_1.add_paragraph()
-        pr.space_after = Pt(3)
-        r1 = pr.add_run()
-        r1.text = "• " + pt
-        r1.font.name = "Arial"
-        r1.font.bold = True
-        r1.font.size = Pt(11)
-        r1.font.color.rgb = TEXT_DARK
-        r2 = pr.add_run()
-        r2.text = pdesc
-        r2.font.name = "Arial"
-        r2.font.size = Pt(11)
-        r2.font.color.rgb = TEXT_BODY
 
-    c7_2 = create_card(slide7, left2, row1_t, grid_w, grid_h)
-    tf7_2 = c7_2.text_frame
-    tf7_2.word_wrap = True
-    tf7_2.margin_left = tf7_2.margin_right = tf7_2.margin_top = Inches(0.24)
-    p = tf7_2.paragraphs[0]
-    p.text = "2. GEOCODING & LOCAL DATABASE (geo.py, places.py)"
-    p.font.name = "Arial"
-    p.font.size = Pt(10.5)
-    p.font.bold = True
-    p.font.color.rgb = PRIMARY
-    p.space_after = Pt(3)
-    p_t = tf7_2.add_paragraph()
-    p_t.text = "Search & Indexing Engine"
-    p_t.font.name = "Arial"
-    p_t.font.size = Pt(15)
-    p_t.font.bold = True
-    p_t.font.color.rgb = TEXT_DARK
-    p_t.space_after = Pt(6)
+    for c_left, c_top, c_tag, c_title, c_items in cards7_data:
+        bx = create_card(slide7, c_left, c_top, grid_w, grid_h)
+        tf = bx.text_frame
+        tf.word_wrap = True
+        tf.margin_left = tf.margin_right = tf.margin_top = Inches(0.26)
 
-    c2_pts = [
-        ("Offline SQLite Index: ", "Processed 565,000+ Indian geo-entities into a compressed SQLite store (`india_places.sqlite.gz`)."),
-        ("Sub-10ms Prefix Search: ", "Implemented SQL prefix autocomplete with ranking that prioritizes districts and major towns."),
-        ("Multi-Tier Fallback: ", "Created graceful fallback to Photon / OSM / Nominatim for PIN codes and unlisted hamlets.")
-    ]
-    for pt, pdesc in c2_pts:
-        pr = tf7_2.add_paragraph()
-        pr.space_after = Pt(3)
-        r1 = pr.add_run()
-        r1.text = "• " + pt
-        r1.font.name = "Arial"
-        r1.font.bold = True
-        r1.font.size = Pt(11)
-        r1.font.color.rgb = TEXT_DARK
-        r2 = pr.add_run()
-        r2.text = pdesc
-        r2.font.name = "Arial"
-        r2.font.size = Pt(11)
-        r2.font.color.rgb = TEXT_BODY
+        p = tf.paragraphs[0]
+        p.text = c_tag
+        p.font.name = "Arial"
+        p.font.size = Pt(11)
+        p.font.bold = True
+        p.font.color.rgb = PRIMARY
+        p.space_after = Pt(2)
 
-    c7_3 = create_card(slide7, left1, row2_t, grid_w, grid_h)
-    tf7_3 = c7_3.text_frame
-    tf7_3.word_wrap = True
-    tf7_3.margin_left = tf7_3.margin_right = tf7_3.margin_top = Inches(0.24)
-    p = tf7_3.paragraphs[0]
-    p.text = "3. TRILINGUAL LOCALIZATION (i18n.py)"
-    p.font.name = "Arial"
-    p.font.size = Pt(10.5)
-    p.font.bold = True
-    p.font.color.rgb = PRIMARY
-    p.space_after = Pt(3)
-    p_t = tf7_3.add_paragraph()
-    p_t.text = "Vernacular Language Engine"
-    p_t.font.name = "Arial"
-    p_t.font.size = Pt(15)
-    p_t.font.bold = True
-    p_t.font.color.rgb = TEXT_DARK
-    p_t.space_after = Pt(6)
+        pt = tf.add_paragraph()
+        pt.text = c_title
+        pt.font.name = "Arial"
+        pt.font.size = Pt(16)
+        pt.font.bold = True
+        pt.font.color.rgb = TEXT_DARK
+        pt.space_after = Pt(8)
 
-    c3_pts = [
-        ("Zero-Lag Translation: ", "Engineered a static dictionary mapping strings into English, Hindi, and regional Bhojpuri."),
-        ("Full Domain Coverage: ", "Translated all UI labels, meteorological status codes (WMO), agricultural advisories, and tips."),
-        ("Cultural Idioms: ", "Ensured agricultural and weather descriptions feel natural to rural northern/eastern Indian speakers.")
-    ]
-    for pt, pdesc in c3_pts:
-        pr = tf7_3.add_paragraph()
-        pr.space_after = Pt(3)
-        r1 = pr.add_run()
-        r1.text = "• " + pt
-        r1.font.name = "Arial"
-        r1.font.bold = True
-        r1.font.size = Pt(11)
-        r1.font.color.rgb = TEXT_DARK
-        r2 = pr.add_run()
-        r2.text = pdesc
-        r2.font.name = "Arial"
-        r2.font.size = Pt(11)
-        r2.font.color.rgb = TEXT_BODY
-
-    c7_4 = create_card(slide7, left2, row2_t, grid_w, grid_h)
-    tf7_4 = c7_4.text_frame
-    tf7_4.word_wrap = True
-    tf7_4.margin_left = tf7_4.margin_right = tf7_4.margin_top = Inches(0.24)
-    p = tf7_4.paragraphs[0]
-    p.text = "4. UI/UX & DUAL CLOUD ARCHITECTURE"
-    p.font.name = "Arial"
-    p.font.size = Pt(10.5)
-    p.font.bold = True
-    p.font.color.rgb = PRIMARY
-    p.space_after = Pt(3)
-    p_t = tf7_4.add_paragraph()
-    p_t.text = "Frontend & Serverless Edge"
-    p_t.font.name = "Arial"
-    p_t.font.size = Pt(15)
-    p_t.font.bold = True
-    p_t.font.color.rgb = TEXT_DARK
-    p_t.space_after = Pt(6)
-
-    c4_pts = [
-        ("Streamlit Interface: ", "Built responsive UI (`app.py`) with theme toggle, animated sky banners, and custom CSS."),
-        ("Cloudflare Serverless: ", "Configured edge functions (`functions/api/`) and client web app (`public/app.js`)."),
-        ("Tiered Caching: ", "Implemented memory caching (`@st.cache_data`) and HTTP edge cache headers (600s TTL).")
-    ]
-    for pt, pdesc in c4_pts:
-        pr = tf7_4.add_paragraph()
-        pr.space_after = Pt(3)
-        r1 = pr.add_run()
-        r1.text = "• " + pt
-        r1.font.name = "Arial"
-        r1.font.bold = True
-        r1.font.size = Pt(11)
-        r1.font.color.rgb = TEXT_DARK
-        r2 = pr.add_run()
-        r2.text = pdesc
-        r2.font.name = "Arial"
-        r2.font.size = Pt(11)
-        r2.font.color.rgb = TEXT_BODY
+        for it, idesc in c_items:
+            pr = tf.add_paragraph()
+            pr.space_after = Pt(4)
+            r1 = pr.add_run()
+            r1.text = "• " + it + " "
+            r1.font.name = "Arial"
+            r1.font.bold = True
+            r1.font.size = Pt(11.5)
+            r1.font.color.rgb = TEXT_DARK
+            r2 = pr.add_run()
+            r2.text = idesc
+            r2.font.name = "Arial"
+            r2.font.size = Pt(11.5)
+            r2.font.color.rgb = TEXT_BODY
 
     # ==========================================
     # SLIDE 8: Demonstration / Evidence of Work
     # ==========================================
     slide8 = prs.slides.add_slide(blank_layout)
     set_slide_background(slide8, BG_LIGHT)
-    add_header(slide8, "Demonstration, UI Screens & Certification Evidence", "Project Evidence", "08 / 12")
+    add_header(slide8, "Proof of Work & Certification", "Project Evidence", "08 / 12")
 
-    # Left Box: AICTE Recognized Certificate
-    card8_l = create_card(slide8, Inches(0.8), Inches(1.72), Inches(5.65), Inches(4.35))
+    # Left: Certificate
+    card8_l = create_card(slide8, Inches(0.8), Inches(1.8), Inches(5.65), Inches(4.3))
     tf8_l = card8_l.text_frame
     tf8_l.word_wrap = True
     tf8_l.margin_left = tf8_l.margin_right = tf8_l.margin_top = Inches(0.18)
     p = tf8_l.paragraphs[0]
-    p.text = "COMPLETION CERTIFICATE (INTELLIO INTERN)"
+    p.text = "AICTE RECOGNIZED CERTIFICATE"
     p.font.name = "Arial"
-    p.font.size = Pt(10.5)
+    p.font.size = Pt(11)
     p.font.bold = True
     p.font.color.rgb = PRIMARY
 
-    # Insert Certificate Image inside left box
     cert_img_path = "/home/rohit/Downloads/funproject/weather/presentation_assets/certificate-1.png"
     if os.path.exists(cert_img_path):
         slide8.shapes.add_picture(
-            cert_img_path, Inches(1.0), Inches(2.12), width=Inches(5.25), height=Inches(3.35)
+            cert_img_path, Inches(1.0), Inches(2.2), width=Inches(5.25), height=Inches(3.3)
         )
 
-    # Caption box for certificate
-    cap_cert = slide8.shapes.add_textbox(Inches(0.9), Inches(5.55), Inches(5.45), Inches(0.45))
+    cap_cert = slide8.shapes.add_textbox(Inches(0.9), Inches(5.58), Inches(5.45), Inches(0.45))
     tf_cc = cap_cert.text_frame
     tf_cc.word_wrap = True
     tf_cc.margin_left = tf_cc.margin_top = 0
     p_cc = tf_cc.paragraphs[0]
-    p_cc.text = "AICTE Recognized Certificate | Sonali Kumari (26DCSE26) | Grade A+ (91%) | ID: BQTA26319"
+    p_cc.text = "Sonali Kumari (26DCSE26)  |  Grade A+ (91%)  |  ID: BQTA26319"
     p_cc.font.name = "Arial"
-    p_cc.font.size = Pt(9.5)
+    p_cc.font.size = Pt(10)
     p_cc.font.bold = True
     p_cc.font.color.rgb = EMERALD_TEXT
 
-    # Right Box: Live Weather Tracker Application Screenshot
-    card8_r = create_card(slide8, Inches(6.8), Inches(1.72), Inches(5.73), Inches(4.35))
+    # Right: Web App
+    card8_r = create_card(slide8, Inches(6.8), Inches(1.8), Inches(5.73), Inches(4.3))
     tf8_r = card8_r.text_frame
     tf8_r.word_wrap = True
     tf8_r.margin_left = tf8_r.margin_right = tf8_r.margin_top = Inches(0.18)
     p = tf8_r.paragraphs[0]
-    p.text = "LIVE WEATHER TRACKER - PRODUCTION APPLICATION"
+    p.text = "LIVE WEATHER TRACKER APPLICATION"
     p.font.name = "Arial"
-    p.font.size = Pt(10.5)
+    p.font.size = Pt(11)
     p.font.bold = True
     p.font.color.rgb = PRIMARY
 
-    # Insert Weather App Screenshot inside right box
     app_img_path = "/home/rohit/Downloads/funproject/weather/presentation_assets/weather_app_live.png"
     if os.path.exists(app_img_path):
         slide8.shapes.add_picture(
-            app_img_path, Inches(7.0), Inches(2.12), width=Inches(5.33), height=Inches(3.35)
+            app_img_path, Inches(7.0), Inches(2.2), width=Inches(5.33), height=Inches(3.3)
         )
 
-    # Caption box for weather app
-    cap_app = slide8.shapes.add_textbox(Inches(6.9), Inches(5.55), Inches(5.5), Inches(0.45))
+    cap_app = slide8.shapes.add_textbox(Inches(6.9), Inches(5.58), Inches(5.5), Inches(0.45))
     tf_ca = cap_app.text_frame
     tf_ca.word_wrap = True
     tf_ca.margin_left = tf_ca.margin_top = 0
     p_ca = tf_ca.paragraphs[0]
-    p_ca.text = "Live Web Interface | All-India Place Search | 5 Modes | Trilingual (EN / HI / BHO)"
+    p_ca.text = "Live Web Interface  |  5 Modes  |  Trilingual (EN / HI / BHO)  |  Zero API Keys"
     p_ca.font.name = "Arial"
-    p_ca.font.size = Pt(9.5)
+    p_ca.font.size = Pt(10)
     p_ca.font.bold = True
     p_ca.font.color.rgb = PRIMARY
 
-    # Bottom Repository / Deployment Evidence Bar
-    bar8 = create_card(slide8, Inches(0.8), Inches(6.18), Inches(11.733), Inches(0.92))
+    # Bottom Repository Bar
+    bar8 = create_card(slide8, Inches(0.8), Inches(6.2), Inches(11.733), Inches(0.85))
     tf_bar = bar8.text_frame
     tf_bar.word_wrap = True
     tf_bar.margin_left = tf_bar.margin_right = Inches(0.25)
@@ -1153,25 +796,25 @@ def create_presentation():
     r1.text = "Source Code Repository:  "
     r1.font.name = "Arial"
     r1.font.bold = True
-    r1.font.size = Pt(11)
+    r1.font.size = Pt(11.5)
     r1.font.color.rgb = TEXT_DARK
     r2 = p.add_run()
-    r2.text = "https://github.com/sonalikumari09/live-weather-tracker   (Public / Main Branch)\n"
+    r2.text = "https://github.com/sonalikumari09/live-weather-tracker  (Main Branch)\n"
     r2.font.name = "Arial"
-    r2.font.size = Pt(11)
+    r2.font.size = Pt(11.5)
     r2.font.bold = True
     r2.font.color.rgb = PRIMARY
 
     r3 = p.add_run()
-    r3.text = "Dual Deployment Architecture:  "
+    r3.text = "Dual Live Deployment:  "
     r3.font.name = "Arial"
     r3.font.bold = True
-    r3.font.size = Pt(10.5)
+    r3.font.size = Pt(11)
     r3.font.color.rgb = TEXT_DARK
     r4 = p.add_run()
-    r4.text = "Streamlit Cloud (Data App)  +  Cloudflare Pages Edge (*.pages.dev) with D1 SQLite & Serverless Functions"
+    r4.text = "Streamlit Cloud Dashboard  +  Cloudflare Pages Edge (*.pages.dev)"
     r4.font.name = "Arial"
-    r4.font.size = Pt(10.5)
+    r4.font.size = Pt(11)
     r4.font.color.rgb = TEXT_BODY
 
     # ==========================================
@@ -1179,35 +822,32 @@ def create_presentation():
     # ==========================================
     slide9 = prs.slides.add_slide(blank_layout)
     set_slide_background(slide9, BG_LIGHT)
-    add_header(slide9, "Challenges Faced & Problem-Solving Approach", "Technical Challenges", "09 / 12")
+    add_header(slide9, "Challenges & Simple Solutions", "Technical Challenges", "09 / 12")
 
     ch_w = Inches(11.733)
-    ch_h = Inches(1.58)
-    top_c1 = Inches(1.72)
-    top_c2 = Inches(3.48)
+    ch_h = Inches(1.55)
+    top_c1 = Inches(1.8)
+    top_c2 = Inches(3.52)
     top_c3 = Inches(5.24)
 
     challenges = [
-        ("CHALLENGE 1: Sub-Second Geocoding for 550,000+ Indian Villages Without Paid APIs",
-         "Commercial geocoding APIs (Google Maps) are prohibitively expensive; free public endpoints (Nominatim) rate-limit to 1 req/sec and fail under rapid typing.",
-         "Pre-processed the entire GeoNames India dataset into a local SQLite database compressed with gzip (india_places.sqlite.gz).",
-         "Decompress on first use into memory, query via indexed SQL prefix matching, and rank results by administrative hierarchy with Photon fallback.",
-         "Instant autocomplete search (<15ms latency) with zero external API dependencies and zero operating cost."),
+        ("CHALLENGE 1: Searching 550,000+ Villages Without Paid APIs",
+         "Commercial maps APIs cost too much; free public APIs rate-limit typing.",
+         "Compressed the full Indian GeoNames dataset into a local SQLite database (`india_places.sqlite.gz`).",
+         "Instant (<15ms) prefix autocomplete with zero API costs and 100% offline reliability."),
          
-        ("CHALLENGE 2: Transforming Complex Agro-Telemetry into Actionable Farmer Advice",
-         "Raw meteorological data (volumetric soil moisture m³/m³, soil warmth at 6cm, WMO codes) is unintelligible and unusable for rural farmers.",
-         "Researched agronomic thresholds for Indian crops, root depth dynamics, and seasonal precipitation trends.",
-         "Created rule-based algorithms synthesizing 7-day cumulative rainfall, 6cm soil temperature, and moisture into clear text advisories.",
-         "Farmers receive direct, practical guidance (e.g., 'Soil moisture adequate for sowing', 'Irrigation recommended') in their regional tongue."),
+        ("CHALLENGE 2: Making Raw Weather Data Useful for Farmers",
+         "Raw scientific numbers (soil moisture in m³/m³, soil warmth) confuse farmers.",
+         "Created simple rules combining 6cm soil temp, moisture, and 7-day rain into plain advice.",
+         "Actionable guidance in regional language (e.g. 'Adequate soil moisture for sowing')."),
 
-        ("CHALLENGE 3: Seamless Trilingual Experience Without External Translation Latency",
-         "Third-party translation APIs (Google Cloud Translate) add 300-600ms network latency per request, require quotas, and produce robotic translations of rural idioms.",
-         "Designed a centralized in-memory static dictionary mapping inside i18n.py and public/app.js.",
-         "Pre-mapped all UI labels, meteorological codes, agricultural tips, and packing advice into structured key-value stores for English, Hindi, and Bhojpuri.",
-         "Instantaneous (<1ms) language toggle with 100% offline accuracy, cultural phrasing, and zero network overhead.")
+        ("CHALLENGE 3: Seamless Trilingual Switching Without Delay",
+         "Cloud translation APIs are slow (500ms lag) and sound robotic in regional dialects.",
+         "Built a lightweight in-memory dictionary directly in Python and JavaScript.",
+         "Instant (<1ms) language toggle with natural phrasing in English, Hindi, and Bhojpuri.")
     ]
 
-    for i, (c_tag, prob, appr, sol, res) in enumerate(challenges):
+    for i, (c_tag, prob, sol, res) in enumerate(challenges):
         curr_top = [top_c1, top_c2, top_c3][i]
         card = create_card(slide9, Inches(0.8), curr_top, ch_w, ch_h)
         tf = card.text_frame
@@ -1221,35 +861,34 @@ def create_presentation():
         p.font.size = Pt(11)
         p.font.bold = True
         p.font.color.rgb = PRIMARY
-        p.space_after = Pt(2)
+        p.space_after = Pt(3)
 
         p_body = tf.add_paragraph()
-        p_body.space_after = Pt(0)
 
         # Problem
         r1 = p_body.add_run()
         r1.text = "Problem: "
         r1.font.name = "Arial"
         r1.font.bold = True
-        r1.font.size = Pt(10)
+        r1.font.size = Pt(10.5)
         r1.font.color.rgb = ROSE_TEXT
         r2 = p_body.add_run()
         r2.text = prob + "  "
         r2.font.name = "Arial"
-        r2.font.size = Pt(10)
+        r2.font.size = Pt(10.5)
         r2.font.color.rgb = TEXT_BODY
 
-        # Approach & Solution
+        # Solution
         r3 = p_body.add_run()
-        r3.text = "Approach & Solution: "
+        r3.text = "Solution: "
         r3.font.name = "Arial"
         r3.font.bold = True
-        r3.font.size = Pt(10)
+        r3.font.size = Pt(10.5)
         r3.font.color.rgb = PRIMARY
         r4 = p_body.add_run()
-        r4.text = f"{appr} {sol}  "
+        r4.text = sol + "  "
         r4.font.name = "Arial"
-        r4.font.size = Pt(10)
+        r4.font.size = Pt(10.5)
         r4.font.color.rgb = TEXT_BODY
 
         # Result
@@ -1257,13 +896,13 @@ def create_presentation():
         r5.text = "Result: "
         r5.font.name = "Arial"
         r5.font.bold = True
-        r5.font.size = Pt(10)
+        r5.font.size = Pt(10.5)
         r5.font.color.rgb = EMERALD_TEXT
         r6 = p_body.add_run()
         r6.text = res
         r6.font.name = "Arial"
-        r6.font.size = Pt(10)
         r6.font.bold = True
+        r6.font.size = Pt(10.5)
         r6.font.color.rgb = EMERALD_TEXT
 
     # ==========================================
@@ -1271,94 +910,94 @@ def create_presentation():
     # ==========================================
     slide10 = prs.slides.add_slide(blank_layout)
     set_slide_background(slide10, BG_LIGHT)
-    add_header(slide10, "Key Learnings & Skill Acquisition", "Learning Outcomes", "10 / 12")
+    add_header(slide10, "What I Learned", "Learning Outcomes", "10 / 12")
 
-    # Left: Technical Learnings
-    card10_l = create_card(slide10, Inches(0.8), Inches(1.72), Inches(5.65), Inches(5.25))
+    # Left: Technical
+    card10_l = create_card(slide10, Inches(0.8), Inches(1.8), Inches(5.65), Inches(5.1))
     tf10_l = card10_l.text_frame
     tf10_l.word_wrap = True
     tf10_l.margin_left = tf10_l.margin_right = tf10_l.margin_top = Inches(0.3)
 
     p = tf10_l.paragraphs[0]
-    p.text = "TECHNICAL LEARNINGS"
+    p.text = "TECHNICAL SKILLS"
     p.font.name = "Arial"
-    p.font.size = Pt(10.5)
+    p.font.size = Pt(11)
     p.font.bold = True
     p.font.color.rgb = PRIMARY
     p.space_after = Pt(4)
 
     pt = tf10_l.add_paragraph()
-    pt.text = "Engineering & Systems Mastery"
+    pt.text = "Engineering Mastery"
     pt.font.name = "Arial"
-    pt.font.size = Pt(17)
+    pt.font.size = Pt(18)
     pt.font.bold = True
     pt.font.color.rgb = TEXT_DARK
-    pt.space_after = Pt(10)
+    pt.space_after = Pt(12)
 
     tech_learnings = [
-        ("Modular Python Programming:", " Designing clean, decoupled architectures adhering to PEP 8 standards, custom exceptions, and type hints."),
-        ("REST API & Telemetry Integration:", " Consuming multi-endpoint meteorological APIs, robust timeout handling, and payload normalization."),
-        ("Database Optimization:", " Structuring SQLite databases, building prefix search indices, and implementing on-demand gzip decompression in memory."),
-        ("Full-Stack & Cloud Deployment:", " Developing reactive dashboards in Streamlit and configuring Cloudflare Pages serverless edge functions with D1 database."),
-        ("Performance Caching Strategies:", " Implementing tiered in-memory caching (@st.cache_data) and HTTP Cache-Control headers to reduce load times to <50ms.")
+        ("Production Python:", " Clean, modular, and maintainable code adhering to PEP 8."),
+        ("REST API Integration:", " Fetching live meteorological data and handling timeouts."),
+        ("Database Optimization:", " Indexing and querying compressed SQLite files in memory."),
+        ("Full-Stack Deployment:", " Deploying interactive apps to Streamlit and Cloudflare edge."),
+        ("Smart Caching:", " Using `@st.cache_data` and HTTP cache headers to speed up responses.")
     ]
     for lt, ldesc in tech_learnings:
         pr = tf10_l.add_paragraph()
-        pr.space_after = Pt(6)
+        pr.space_after = Pt(8)
         r1 = pr.add_run()
-        r1.text = "• " + lt
+        r1.text = "• " + lt + " "
         r1.font.name = "Arial"
         r1.font.bold = True
-        r1.font.size = Pt(11.5)
+        r1.font.size = Pt(12)
         r1.font.color.rgb = TEXT_DARK
         r2 = pr.add_run()
         r2.text = ldesc
         r2.font.name = "Arial"
-        r2.font.size = Pt(11.5)
+        r2.font.size = Pt(12)
         r2.font.color.rgb = TEXT_BODY
 
-    # Right: Professional & Soft Skills
-    card10_r = create_card(slide10, Inches(6.8), Inches(1.72), Inches(5.73), Inches(5.25))
+    # Right: Professional
+    card10_r = create_card(slide10, Inches(6.8), Inches(1.8), Inches(5.73), Inches(5.1))
     tf10_r = card10_r.text_frame
     tf10_r.word_wrap = True
     tf10_r.margin_left = tf10_r.margin_right = tf10_r.margin_top = Inches(0.3)
 
     p = tf10_r.paragraphs[0]
-    p.text = "PROFESSIONAL & DESIGN LEARNINGS"
+    p.text = "PROFESSIONAL SKILLS"
     p.font.name = "Arial"
-    p.font.size = Pt(10.5)
+    p.font.size = Pt(11)
     p.font.bold = True
     p.font.color.rgb = PRIMARY
     p.space_after = Pt(4)
 
     pt = tf10_r.add_paragraph()
-    pt.text = "Product Thinking & Execution"
+    pt.text = "Product Thinking"
     pt.font.name = "Arial"
-    pt.font.size = Pt(17)
+    pt.font.size = Pt(18)
     pt.font.bold = True
     pt.font.color.rgb = TEXT_DARK
-    pt.space_after = Pt(10)
+    pt.space_after = Pt(12)
 
     soft_learnings = [
-        ("Social Impact Engineering:", " Designing technology with empathy for non-metro, rural communities, ensuring accessibility for non-English speakers."),
-        ("Problem Decomposition:", " Breaking down a large-scale project into discrete, manageable, testable components and milestones."),
-        ("Version Control & Collaboration:", " Structuring clear git commits, writing descriptive README documentation, and setting up automated deployment scripts."),
-        ("Time Management:", " Successfully taking a project from conceptualization to full cloud deployment within a strict 2-week internship timeline."),
-        ("Areas for Further Growth:", " Enhancing automated unit test coverage with pytest, implementing Docker containers, and setting up CI/CD GitHub Actions.")
+        ("Solving Real Problems:", " Designing software for underserved rural communities."),
+        ("User-Centric Design:", " Making tools easy to use in native languages (Hindi/Bhojpuri)."),
+        ("Project Discipline:", " Delivering a complete full-stack product within 2 weeks."),
+        ("Git & Documentation:", " Writing clean commit logs and comprehensive README files."),
+        ("Next Growth Area:", " Expanding unit tests (`pytest`) and Docker containerization.")
     ]
     for lt, ldesc in soft_learnings:
         pr = tf10_r.add_paragraph()
-        pr.space_after = Pt(6)
+        pr.space_after = Pt(8)
         r1 = pr.add_run()
-        r1.text = "• " + lt
+        r1.text = "• " + lt + " "
         r1.font.name = "Arial"
         r1.font.bold = True
-        r1.font.size = Pt(11.5)
+        r1.font.size = Pt(12)
         r1.font.color.rgb = TEXT_DARK
         r2 = pr.add_run()
         r2.text = ldesc
         r2.font.name = "Arial"
-        r2.font.size = Pt(11.5)
+        r2.font.size = Pt(12)
         r2.font.color.rgb = TEXT_BODY
 
     # ==========================================
@@ -1366,78 +1005,71 @@ def create_presentation():
     # ==========================================
     slide11 = prs.slides.add_slide(blank_layout)
     set_slide_background(slide11, BG_LIGHT)
-    add_header(slide11, "Future Enhancements & Scalability Roadmap", "Future Roadmap", "11 / 12")
+    add_header(slide11, "What I Would Build Next", "Future Roadmap", "11 / 12")
 
     future_data = [
-        ("1. LIVE RADAR & SATELLITE OVERLAYS", "Visual Storm Tracking", [
-            ("INSAT & IMD Integration: ", "Incorporate live INSAT-3D/3DR satellite imagery and Indian Meteorological Department Doppler radar overlays."),
-            ("Precipitation Trajectory: ", "Provide visual cloud trajectory maps, cyclone path estimations, and lightning hazard zones."),
-            ("Real-Time Animation: ", "Enable time-scrubbing weather radar loops for farmers and disaster management teams.")
+        (left1, row1_t, "1. RADAR & SATELLITE", "Live Weather Maps", [
+            ("IMD Radar Feeds:", " Add real-time radar maps to track storm and rain paths visually."),
+            ("Satellite Overlays:", " Display live INSAT satellite cloud movement.")
         ]),
-        ("2. VOICE VERNACULAR ASSISTANT", "Spoken Language Querying", [
-            ("Web Speech API Integration: ", "Allow farmers to simply tap a microphone and speak village names or ask queries."),
-            ("Regional Dialects: ", "Support voice inputs in Hindi, Bhojpuri, Maithili, and Bengali to eliminate literacy barriers."),
-            ("Voice Audio Responses: ", "Synthesize spoken weather summaries for audio playback on mobile browsers.")
+        (left2, row1_t, "2. VOICE SEARCH", "Regional Voice Queries", [
+            ("Speak in Native Language:", " Allow farmers to speak village names in Hindi or Bhojpuri."),
+            ("Voice Advisories:", " Read aloud farming tips for users who cannot read.")
         ]),
-        ("3. SMS & WHATSAPP BROADCAST ALERTS", "Low-Connectivity Access", [
-            ("Feature Phone Inclusivity: ", "Connect Twilio / Indian SMS gateway to send automated morning weather summaries via SMS."),
-            ("Severe Warning Push: ", "Trigger automated SMS/WhatsApp alerts for heatwaves, sudden frost, and severe thunderstorms."),
-            ("Zero Data Requirement: ", "Ensure critical agricultural advisories reach farmers without requiring smartphones or 4G data.")
+        (left1, row2_t, "3. SMS & WHATSAPP", "Feature Phone Support", [
+            ("No Smartphone Needed:", " Send morning forecast SMS alerts to basic 2G feature phones."),
+            ("Storm Alerts:", " Push immediate hazard warnings for sudden frost or heatwaves.")
         ]),
-        ("4. PROGRESSIVE WEB APP (PWA) & IOT", "Offline Resilience & Precision", [
-            ("PWA Service Workers: ", "Cache the last 7 days of forecasts locally so the app works completely offline in remote villages."),
-            ("Micro-Climate Sensors: ", "Provide API hooks to interface with low-cost LoRaWAN soil moisture and micro-weather hardware sensors."),
-            ("Installable App: ", "One-click install directly from browser to Android home screens without Google Play Store dependencies.")
+        (left2, row2_t, "4. OFFLINE APP (PWA)", "Works Without Internet", [
+            ("Offline Caching:", " Cache the last 7 days of forecasts for remote rural areas."),
+            ("Direct Mobile Install:", " Install directly on Android without app store downloads.")
         ])
     ]
 
-    for i, (f_tag, f_title, f_items) in enumerate(future_data):
-        curr_left = left1 if i % 2 == 0 else left2
-        curr_top = row1_t if i < 2 else row2_t
-
-        card = create_card(slide11, curr_left, curr_top, grid_w, grid_h)
-        tf = card.text_frame
+    for c_left, c_top, c_tag, c_title, c_items in future_data:
+        bx = create_card(slide11, c_left, c_top, grid_w, grid_h)
+        tf = bx.text_frame
         tf.word_wrap = True
-        tf.margin_left = tf.margin_right = tf.margin_top = Inches(0.24)
+        tf.margin_left = tf.margin_right = tf.margin_top = Inches(0.26)
 
         p = tf.paragraphs[0]
-        p.text = f_tag
+        p.text = c_tag
         p.font.name = "Arial"
-        p.font.size = Pt(10.5)
+        p.font.size = Pt(11)
         p.font.bold = True
         p.font.color.rgb = PRIMARY
         p.space_after = Pt(2)
 
         pt = tf.add_paragraph()
-        pt.text = f_title
+        pt.text = c_title
         pt.font.name = "Arial"
-        pt.font.size = Pt(15)
+        pt.font.size = Pt(16)
         pt.font.bold = True
         pt.font.color.rgb = TEXT_DARK
-        pt.space_after = Pt(6)
+        pt.space_after = Pt(8)
 
-        for it, idesc in f_items:
+        for it, idesc in c_items:
             pr = tf.add_paragraph()
-            pr.space_after = Pt(3)
+            pr.space_after = Pt(4)
             r1 = pr.add_run()
-            r1.text = "• " + it
+            r1.text = "• " + it + " "
             r1.font.name = "Arial"
             r1.font.bold = True
-            r1.font.size = Pt(11)
+            r1.font.size = Pt(11.5)
             r1.font.color.rgb = TEXT_DARK
             r2 = pr.add_run()
             r2.text = idesc
             r2.font.name = "Arial"
-            r2.font.size = Pt(11)
+            r2.font.size = Pt(11.5)
             r2.font.color.rgb = TEXT_BODY
 
     # ==========================================
-    # SLIDE 12: Conclusion & Viva Voce (Dark Hero Theme)
+    # SLIDE 12: Conclusion & Viva Voce (Dark Hero)
     # ==========================================
     slide12 = prs.slides.add_slide(blank_layout)
     set_slide_background(slide12, BG_DARK)
 
-    # Decorative glow bar
+    # Accent glow bar
     glow_bar12 = slide12.shapes.add_shape(
         MSO_SHAPE.RECTANGLE, Inches(0.8), Inches(0.8), Inches(0.1), Inches(5.9)
     )
@@ -1456,7 +1088,7 @@ def create_presentation():
     tf12_p = pill12.text_frame
     tf12_p.margin_top = Inches(0.05)
     p_12p = tf12_p.paragraphs[0]
-    p_12p.text = "SUMMARY & VIVA VOCE"
+    p_12p.text = "CONCLUSION & VIVA"
     p_12p.font.name = "Arial"
     p_12p.font.size = Pt(10.5)
     p_12p.font.bold = True
@@ -1482,31 +1114,31 @@ def create_presentation():
 
     # Main Title
     title12_box = slide12.shapes.add_textbox(
-        Inches(1.15), Inches(1.3), Inches(11.35), Inches(1.1)
+        Inches(1.15), Inches(1.35), Inches(11.35), Inches(1.1)
     )
     tf12 = title12_box.text_frame
     tf12.word_wrap = True
     tf12.margin_left = tf12.margin_top = 0
     p1 = tf12.paragraphs[0]
-    p1.text = "Conclusion & Project Defense"
+    p1.text = "Summary & Technical Q&A"
     p1.font.name = "Arial"
-    p1.font.size = Pt(28)
+    p1.font.size = Pt(32)
     p1.font.bold = True
     p1.font.color.rgb = RGBColor(255, 255, 255)
     p1.space_after = Pt(4)
     p2 = tf12.add_paragraph()
-    p2.text = "Summary of Internship Deliverables & Technical Achievements"
+    p2.text = "Successfully delivered and deployed the Live Weather Tracker capstone project."
     p2.font.name = "Arial"
-    p2.font.size = Pt(15)
+    p2.font.size = Pt(16)
     p2.font.color.rgb = PRIMARY_GLOW
 
     # Middle 2 Cards
-    c12_l = create_card(slide12, Inches(1.15), Inches(2.6), Inches(5.6), Inches(2.65), BG_CARD_DARK, CARD_BORDER_DARK, 1)
+    c12_l = create_card(slide12, Inches(1.15), Inches(2.65), Inches(5.6), Inches(2.55), BG_CARD_DARK, CARD_BORDER_DARK, 1)
     tf12_l = c12_l.text_frame
     tf12_l.word_wrap = True
-    tf12_l.margin_left = tf12_l.margin_right = tf12_l.margin_top = Inches(0.25)
+    tf12_l.margin_left = tf12_l.margin_right = tf12_l.margin_top = Inches(0.28)
     p = tf12_l.paragraphs[0]
-    p.text = "INTERNSHIP OUTCOMES"
+    p.text = "KEY ACHIEVEMENTS"
     p.font.name = "Arial"
     p.font.size = Pt(11)
     p.font.bold = True
@@ -1514,31 +1146,31 @@ def create_presentation():
     p.space_after = Pt(6)
 
     c12_pts1 = [
-        ("Completed 2-Week Intensive Internship", " in Python Programming at INTELLIO INTERN (AICTE Recognized)."),
-        ("Achieved Grade A+ (91%)", " in final assessment and technical project evaluation (Certificate ID: BQTA26319)."),
-        ("Built 'Live Weather Tracker'", " from scratch, providing hyper-local forecasts for 763 districts and 550,000+ villages across India.")
+        ("Completed Internship:", " 2-week intensive Python program at INTELLIO INTERN."),
+        ("Grade A+ (91%):", " Verified completion certificate (ID: BQTA26319)."),
+        ("Live Web App:", " Deployed and accessible on Streamlit & Cloudflare Pages.")
     ]
     for ct, cd in c12_pts1:
         pr = tf12_l.add_paragraph()
-        pr.space_after = Pt(5)
+        pr.space_after = Pt(6)
         r1 = pr.add_run()
-        r1.text = "• " + ct
+        r1.text = "• " + ct + " "
         r1.font.name = "Arial"
         r1.font.bold = True
-        r1.font.size = Pt(11.5)
+        r1.font.size = Pt(12)
         r1.font.color.rgb = RGBColor(255, 255, 255)
         r2 = pr.add_run()
         r2.text = cd
         r2.font.name = "Arial"
-        r2.font.size = Pt(11.5)
+        r2.font.size = Pt(12)
         r2.font.color.rgb = RGBColor(148, 163, 184)
 
-    c12_r = create_card(slide12, Inches(7.05), Inches(2.6), Inches(5.45), Inches(2.65), BG_CARD_DARK, CARD_BORDER_DARK, 1)
+    c12_r = create_card(slide12, Inches(7.05), Inches(2.65), Inches(5.45), Inches(2.55), BG_CARD_DARK, CARD_BORDER_DARK, 1)
     tf12_r = c12_r.text_frame
     tf12_r.word_wrap = True
-    tf12_r.margin_left = tf12_r.margin_right = tf12_r.margin_top = Inches(0.25)
+    tf12_r.margin_left = tf12_r.margin_right = tf12_r.margin_top = Inches(0.28)
     p = tf12_r.paragraphs[0]
-    p.text = "CORE IMPACT & TAKEAWAY"
+    p.text = "REAL-WORLD IMPACT"
     p.font.name = "Arial"
     p.font.size = Pt(11)
     p.font.bold = True
@@ -1546,26 +1178,26 @@ def create_presentation():
     p.space_after = Pt(6)
 
     c12_pts2 = [
-        ("Bridged Academic & Industry Skills:", " Gained production-ready mastery in Python, REST APIs, SQLite indexing, and serverless edge deployment."),
-        ("Social Impact Focus:", " Solved real-world rural challenges with trilingual accessibility (English, Hindi, Bhojpuri) and agricultural telemetry."),
-        ("Scalable Open Architecture:", " Engineered 100% free, zero-key infrastructure running seamlessly on Streamlit and Cloudflare Pages.")
+        ("Bridged the Divide:", " Gave 550,000+ villages the same weather tools as metro cities."),
+        ("Farmer Empowered:", " Soil data and farming tips delivered in Hindi & Bhojpuri."),
+        ("Zero Running Cost:", " Free APIs and serverless edge hosting with zero upkeep fee.")
     ]
     for ct, cd in c12_pts2:
         pr = tf12_r.add_paragraph()
-        pr.space_after = Pt(5)
+        pr.space_after = Pt(6)
         r1 = pr.add_run()
-        r1.text = "• " + ct
+        r1.text = "• " + ct + " "
         r1.font.name = "Arial"
         r1.font.bold = True
-        r1.font.size = Pt(11.5)
+        r1.font.size = Pt(12)
         r1.font.color.rgb = RGBColor(255, 255, 255)
         r2 = pr.add_run()
         r2.text = cd
         r2.font.name = "Arial"
-        r2.font.size = Pt(11.5)
+        r2.font.size = Pt(12)
         r2.font.color.rgb = RGBColor(148, 163, 184)
 
-    # Bottom Call to Action Hero Card
+    # Bottom Hero Card
     hero12 = create_card(slide12, Inches(1.15), Inches(5.45), Inches(11.35), Inches(1.3), RGBColor(30, 41, 59), PRIMARY, 1.5)
     tf_hero = hero12.text_frame
     tf_hero.word_wrap = True
@@ -1575,7 +1207,7 @@ def create_presentation():
     p_h = tf_hero.paragraphs[0]
     p_h.alignment = PP_ALIGN.CENTER
     r1 = p_h.add_run()
-    r1.text = "Thank You! Ready for Live Demonstration & Technical Q&A\n"
+    r1.text = "Thank You! Ready for Live Demo & Viva Questions\n"
     r1.font.name = "Arial"
     r1.font.size = Pt(16)
     r1.font.bold = True
@@ -1593,7 +1225,7 @@ def create_presentation():
     prs.save(output_pptx)
     workspace_pptx = "/home/rohit/Downloads/funproject/weather/Live_Weather_Tracker_Internship_Presentation.pptx"
     prs.save(workspace_pptx)
-    print(f"Presentation saved successfully to {output_pptx} and {workspace_pptx}")
+    print(f"Minimal presentation saved to {output_pptx} and {workspace_pptx}")
 
 if __name__ == "__main__":
     create_presentation()
