@@ -1,0 +1,23 @@
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Environment files
+.env
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# SQLite database (uncompressed files generated at runtime)
+*.sqlite
+*.sqlite-journal
+*.part
+*.tmp
