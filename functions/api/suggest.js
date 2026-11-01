@@ -302,33 +302,146 @@ async function searchD1(db, query, limit) {
   });
 }
 
-// ----------------- Live Geocoding Fallback -----------------
-async function searchLive(query, limit) {
+// Indian colloquial and alternate transliteration dictionary
+const INDIAN_ALIASES = {
+  jahanabad: "jehanabad",
+  jahana: "jehanabad",
+  banaras: "varanasi",
+  benares: "varanasi",
+  kashi: "varanasi",
+  allahabad: "prayagraj",
+  bombay: "mumbai",
+  calcutta: "kolkata",
+  madras: "chennai",
+  bangalore: "bengaluru",
+  poona: "pune",
+  baroda: "vadodara",
+  gurgaon: "gurugram",
+  mysore: "mysuru",
+  cochin: "kochi",
+  trivandrum: "thiruvananthapuram",
+  pondicherry: "puducherry",
+  orissa: "odisha",
+  simla: "shimla",
+  mangalore: "mangaluru",
+  belgaum: "belagavi",
+  hubli: "hubballi",
+  calicut: "kozhikode",
+  gauhati: "guwahati",
+  trichy: "tiruchirappalli",
+  tanjore: "thanjavur",
+  ooty: "udhagamandalam",
+  cawnpore: "kanpur",
+  bhojpur: "arrah",
+  aurangabad: "chhatrapati sambhajinagar",
+};
+
+function stripDiacritics(str) {
+  return (str || "")
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function getDistanceKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+async function fetchOpenMeteoGeo(term, limit) {
+  try {
+    const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(
+      term
+    )}&count=${limit * 2}&language=en&format=json`;
+    const resp = await fetch(url, {
+      headers: { "User-Agent": "LiveWeatherTracker/2.0 (Cloudflare)" },
+    });
+    if (!resp.ok) return [];
+    const data = await resp.json();
+    const items = [];
+    for (const r of data.results || []) {
+      if (r.country_code !== "IN" && r.country !== "India") continue;
+      const pop = r.population || 0;
+      const fc = r.feature_code || "";
+      let typ = "village";
+      if (fc === "ADM2") typ = "district";
+      else if (["PPLC", "PPLA", "PPLA2"].includes(fc)) typ = "city";
+      else if (["PPLA3", "PPLA4", "PPLA5"].includes(fc)) typ = "town";
+      else if (pop >= 50000) typ = "city";
+      else if (pop >= 8000) typ = "town";
+      else typ = "village";
+
+      const cleanName = stripDiacritics(r.name || term);
+      const item = {
+        name: cleanName,
+        latitude: parseFloat(r.latitude),
+        longitude: parseFloat(r.longitude),
+        admin1: stripDiacritics(r.admin1 || ""),
+        admin2: cleanDistrictName(stripDiacritics(r.admin2 || "")),
+        admin3: stripDiacritics(r.admin3 || ""),
+        country: "India",
+        type: typ,
+        type_label: typ,
+        population: pop,
+        source: "open-meteo",
+      };
+      item.label = buildLabel(item);
+      items.push(item);
+    }
+    return items;
+  } catch (e) {
+    return [];
+  }
+}
+
+async function fetchPhotonGeo(term, limit) {
   try {
     const photonUrl = `https://photon.komoot.io/api/?q=${encodeURIComponent(
-      query
+      term
     )}&limit=${limit * 2}&lang=en`;
     const resp = await fetch(photonUrl, {
       headers: { "User-Agent": "LiveWeatherTracker/2.0 (Cloudflare)" },
     });
     if (!resp.ok) return [];
     const data = await resp.json();
-    const out = [];
-
+    const items = [];
     for (const f of data.features || []) {
       const p = f.properties || {};
-      if (p.countrycode && p.countrycode !== "IN") continue;
+      if (p.countrycode !== "IN" && p.country !== "India") continue;
       const coords = (f.geometry && f.geometry.coordinates) || [];
       if (coords.length < 2) continue;
 
-      const name = p.name || query;
-      let typ = p.osm_value || p.type || "place";
-      if (p.osm_key === "boundary" && p.osm_value === "administrative") {
+      let typ = "place";
+      if (
+        (p.osm_value === "administrative" && p.type === "county") ||
+        p.type === "district" ||
+        (p.osm_key === "boundary" && p.osm_value === "administrative" && !p.name.toLowerCase().includes("tahsil"))
+      ) {
         typ = "district";
+      } else if (p.osm_value === "city" || p.type === "city") {
+        typ = "city";
+      } else if (p.osm_value === "town" || p.type === "town") {
+        typ = "town";
+      } else if (p.osm_value === "village" || p.osm_value === "hamlet" || p.type === "village") {
+        typ = "village";
+      } else if (p.osm_value === "suburb" || p.type === "suburb") {
+        typ = "locality";
+      } else {
+        // Skip non-settlement infrastructure markers
+        continue;
       }
 
+      const name = p.name || term;
       const item = {
-        name,
+        name: cleanDistrictName(name),
         latitude: coords[1],
         longitude: coords[0],
         admin1: p.state || "",
@@ -337,16 +450,77 @@ async function searchLive(query, limit) {
         country: "India",
         type: typ,
         type_label: typ,
+        population: typ === "district" ? 600000 : typ === "city" ? 150000 : 0,
         source: "photon",
       };
       item.label = buildLabel(item);
-      out.push(item);
-      if (out.length >= limit) break;
+      items.push(item);
     }
-    return out;
+    return items;
   } catch (e) {
     return [];
   }
+}
+
+// ----------------- Combined Multi-Source Live Geocoding -----------------
+async function searchLive(query, limit) {
+  const normQuery = normalize(query);
+  const terms = [query];
+  if (INDIAN_ALIASES[normQuery] && !terms.includes(INDIAN_ALIASES[normQuery])) {
+    terms.push(INDIAN_ALIASES[normQuery]);
+  }
+
+  const promises = [];
+  for (const t of terms) {
+    promises.push(fetchOpenMeteoGeo(t, limit));
+    promises.push(fetchPhotonGeo(t, limit));
+  }
+
+  const settled = await Promise.allSettled(promises);
+  const collected = [];
+  for (const s of settled) {
+    if (s.status === "fulfilled" && Array.isArray(s.value)) {
+      collected.push(...s.value);
+    }
+  }
+
+  // Deduplicate entries within 12km radius that have matching names and types
+  const deduplicated = [];
+  for (const item of collected) {
+    const isDup = deduplicated.some((existing) => {
+      const dist = getDistanceKm(existing.latitude, existing.longitude, item.latitude, item.longitude);
+      const nameMatch = normalize(existing.name) === normalize(item.name);
+      return (nameMatch && existing.type === item.type && dist < 15) || (nameMatch && dist < 2);
+    });
+    if (!isDup) {
+      deduplicated.push(item);
+    }
+  }
+
+  // Smart Ranking:
+  // 1. Matches search term or known alias
+  // 2. Districts & Cities first, then Towns, then Villages
+  // 3. Higher population first
+  const PRIO = { district: 0, city: 1, town: 2, village: 3, place: 4, locality: 5 };
+  const allSearchTerms = terms.map((t) => normalize(t));
+
+  deduplicated.sort((a, b) => {
+    const aNorm = normalize(a.name);
+    const bNorm = normalize(b.name);
+    const aExact = allSearchTerms.some((t) => aNorm === t) ? 0 : allSearchTerms.some((t) => aNorm.startsWith(t)) ? 1 : 2;
+    const bExact = allSearchTerms.some((t) => bNorm === t) ? 0 : allSearchTerms.some((t) => bNorm.startsWith(t)) ? 1 : 2;
+    if (aExact !== bExact) return aExact - bExact;
+
+    const prioA = PRIO[a.type] ?? 4;
+    const prioB = PRIO[b.type] ?? 4;
+    if (prioA !== prioB) return prioA - prioB;
+
+    if (b.population !== a.population) return (b.population || 0) - (a.population || 0);
+
+    return a.label.length - b.label.length;
+  });
+
+  return deduplicated.slice(0, limit);
 }
 
 export async function onRequestGet({ request, env }) {

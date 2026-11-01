@@ -220,8 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // ----------------- Light / Dark Mode Handling -----------------
 function setupThemeToggle() {
   const toggleBtn = document.getElementById("theme-toggle");
-  const themeIcon = document.getElementById("theme-icon");
-  if (!toggleBtn || !themeIcon) return;
+  if (!toggleBtn) return;
 
   const savedTheme = localStorage.getItem("weather_theme");
   const systemPrefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -318,7 +317,30 @@ function setupNavigation() {
     });
   });
 
-  document.getElementById("compare-btn").addEventListener("click", handleCompareSubmit);
+  const compareBtn = document.getElementById("compare-btn");
+  if (compareBtn) {
+    compareBtn.addEventListener("click", handleCompareSubmit);
+  }
+
+  const compareInput = document.getElementById("compare-input");
+  if (compareInput) {
+    compareInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        handleCompareSubmit();
+      }
+    });
+  }
+
+  document.querySelectorAll(".quick-chip-btn").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      const places = chip.dataset.places;
+      if (places && compareInput) {
+        compareInput.value = places;
+        handleCompareSubmit();
+      }
+    });
+  });
 }
 
 // ----------------- Autocomplete Search -----------------
@@ -1178,16 +1200,38 @@ function renderAlertsView() {
 
 // ----------------- Mode 5: Compare Places -----------------
 async function handleCompareSubmit() {
-  const input = document.getElementById("compare-input").value.trim();
+  const inputEl = document.getElementById("compare-input");
+  const btnEl = document.getElementById("compare-btn");
+  const btnText = document.getElementById("compare-btn-text");
+  const input = inputEl ? inputEl.value.trim() : "";
   if (!input) return;
 
-  const names = input.split(",").map((s) => s.trim()).filter((s) => s.length > 0).slice(0, 4);
+  const names = input
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0)
+    .slice(0, 4);
   if (names.length === 0) return;
 
   const resultsDiv = document.getElementById("compare-results");
+  const cardsGrid = document.getElementById("compare-cards-grid");
   const table = document.getElementById("compare-table");
-  table.innerHTML = "<tr><th>Loading places...</th></tr>";
-  resultsDiv.style.display = "block";
+
+  if (resultsDiv) resultsDiv.style.display = "block";
+  if (btnEl) btnEl.disabled = true;
+  if (btnText) btnText.textContent = "Comparing...";
+
+  if (cardsGrid) {
+    cardsGrid.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 1.5rem; color: var(--text-muted);">
+        <div class="spinner" style="margin: 0 auto 0.75rem auto;"></div>
+        Fetching live weather data for ${names.join(", ")}...
+      </div>
+    `;
+  }
+  if (table) {
+    table.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:1.5rem; color:var(--text-muted);">Gathering telemetry...</td></tr>`;
+  }
 
   const rows = [];
   for (const name of names) {
@@ -1200,54 +1244,123 @@ async function handleCompareSubmit() {
       const wData = await wRes.json();
       const cur = wData.current || {};
       const d = wData.daily || {};
+      const wInfo = getWeatherInfo(cur.weather_code, currentLang);
 
       rows.push({
-        place: `${p.name} (${p.admin1 || ""})`,
-        temp: cur.temperature_2m,
-        feels: cur.apparent_temperature,
-        condition: getWeatherInfo(cur.weather_code, currentLang).name,
+        placeName: p.name,
+        state: p.admin1 || "",
+        type: p.type_label || p.type || "place",
+        temp: Math.round(cur.temperature_2m),
+        feels: Math.round(cur.apparent_temperature),
+        icon: wInfo.icon,
+        condition: wInfo.name,
         humidity: cur.relative_humidity_2m,
-        wind: cur.wind_speed_10m,
+        wind: Math.round(cur.wind_speed_10m),
         rainProb: d.precipitation_probability_max ? d.precipitation_probability_max[0] : 0,
-        maxMin: `${d.temperature_2m_max ? d.temperature_2m_max[0] : "--"}° / ${d.temperature_2m_min ? d.temperature_2m_min[0] : "--"}°`,
+        tMax: d.temperature_2m_max ? Math.round(d.temperature_2m_max[0]) : "--",
+        tMin: d.temperature_2m_min ? Math.round(d.temperature_2m_min[0]) : "--",
+        success: true,
       });
     } catch (e) {
-      rows.push({ place: name, temp: "--", feels: "--", condition: "Not found", humidity: "--", wind: "--", rainProb: "--", maxMin: "--" });
+      rows.push({
+        placeName: name,
+        state: "Not found",
+        type: "unknown",
+        temp: "--",
+        feels: "--",
+        icon: "❓",
+        condition: "Place not found",
+        humidity: "--",
+        wind: "--",
+        rainProb: "--",
+        tMax: "--",
+        tMin: "--",
+        success: false,
+      });
     }
   }
 
-  // Render Table
-  let html = `
-    <thead>
-      <tr>
-        <th>Place</th>
-        <th>Temp (°C)</th>
-        <th>Feels Like</th>
-        <th>Condition</th>
-        <th>Humidity</th>
-        <th>Wind</th>
-        <th>Rain %</th>
-        <th>Max/Min</th>
-      </tr>
-    </thead>
-    <tbody>
-  `;
-  rows.forEach((r) => {
-    html += `
-      <tr>
-        <td><strong>${escapeHtml(r.place)}</strong></td>
-        <td>${r.temp}°C</td>
-        <td>${r.feels}°C</td>
-        <td>${escapeHtml(r.condition)}</td>
-        <td>${r.humidity}%</td>
-        <td>${r.wind} km/h</td>
-        <td>${r.rainProb}%</td>
-        <td>${r.maxMin}</td>
-      </tr>
+  if (btnEl) btnEl.disabled = false;
+  if (btnText) btnText.textContent = "Compare";
+
+  // 1. Render Visual Cards Grid
+  if (cardsGrid) {
+    cardsGrid.innerHTML = "";
+    rows.forEach((r) => {
+      const card = document.createElement("div");
+      card.className = "compare-place-card";
+      card.innerHTML = `
+        <div class="cpc-header">
+          <div>
+            <div class="cpc-name">${escapeHtml(r.placeName)}</div>
+            <div class="cpc-state">${escapeHtml(r.state)}</div>
+          </div>
+          <span class="cpc-badge">${escapeHtml(r.type)}</span>
+        </div>
+        <div class="cpc-body">
+          <span class="cpc-icon">${r.icon}</span>
+          <div>
+            <div class="cpc-temp">${r.temp}${r.success ? "°C" : ""}</div>
+            <div class="cpc-cond">${escapeHtml(r.condition)}</div>
+          </div>
+        </div>
+        <div class="cpc-stats">
+          <div class="cpc-stat-item">Feels: <strong>${r.feels}${r.success ? "°C" : ""}</strong></div>
+          <div class="cpc-stat-item">Rain: <strong>${r.rainProb}${r.success ? "%" : ""}</strong></div>
+          <div class="cpc-stat-item">Wind: <strong>${r.wind}${r.success ? " km/h" : ""}</strong></div>
+          <div class="cpc-stat-item">Range: <strong>${r.tMin}° / ${r.tMax}°</strong></div>
+        </div>
+      `;
+      cardsGrid.appendChild(card);
+    });
+  }
+
+  // 2. Render Comparison Table
+  if (table) {
+    const validTemps = rows.filter((r) => r.success && typeof r.temp === "number").map((r) => r.temp);
+    const maxTemp = validTemps.length ? Math.max(...validTemps) : null;
+    const minTemp = validTemps.length ? Math.min(...validTemps) : null;
+
+    let html = `
+      <thead>
+        <tr>
+          <th>Place</th>
+          <th>Condition</th>
+          <th>Temperature</th>
+          <th>Feels Like</th>
+          <th>Rain Chance</th>
+          <th>Wind Speed</th>
+          <th>Humidity</th>
+          <th>Min / Max</th>
+        </tr>
+      </thead>
+      <tbody>
     `;
-  });
-  html += "</tbody>";
-  table.innerHTML = html;
+
+    rows.forEach((r) => {
+      const tempClass = r.temp === maxTemp && validTemps.length > 1
+        ? "highlight-warm"
+        : r.temp === minTemp && validTemps.length > 1
+        ? "highlight-cool"
+        : "";
+
+      html += `
+        <tr>
+          <td><strong>${escapeHtml(r.placeName)}</strong> <span style="font-size:0.75rem; color:var(--text-muted);">(${escapeHtml(r.state)})</span></td>
+          <td>${r.icon} ${escapeHtml(r.condition)}</td>
+          <td class="${tempClass}"><strong>${r.temp}${r.success ? "°C" : ""}</strong></td>
+          <td>${r.feels}${r.success ? "°C" : ""}</td>
+          <td>💧 ${r.rainProb}${r.success ? "%" : ""}</td>
+          <td>💨 ${r.wind}${r.success ? " km/h" : ""}</td>
+          <td>${r.humidity}${r.success ? "%" : ""}</td>
+          <td>${r.tMin}° / ${r.tMax}°</td>
+        </tr>
+      `;
+    });
+
+    html += "</tbody>";
+    table.innerHTML = html;
+  }
 }
 
 function escapeHtml(text) {
