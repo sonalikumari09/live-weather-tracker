@@ -21,3 +21,9 @@ Thumbs.db
 *.sqlite-journal
 *.part
 *.tmp
+
+# Cloudflare & Node
+.wrangler/
+d1_export/
+node_modules/
+

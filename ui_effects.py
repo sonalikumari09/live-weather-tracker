@@ -2,7 +2,7 @@
 No external assets. Works inside Streamlit via st.markdown(unsafe_allow_html=True).
 
 Themes:
-  clear   -> shining sun + rays + floating sparkles
+  clear   -> shining sun + rotating rays
   partcloud -> sun + drifting clouds
   cloudy  -> grey drifting clouds
   fog     -> sliding fog bands
@@ -119,8 +119,6 @@ GLOBAL_CSS = """
 }
 @keyframes wx-rotate{ to{ transform:rotate(360deg);} }
 @keyframes wx-spin-glow{ from{ transform:scale(1);} to{ transform:scale(1.08);} }
-.wx-sparkle{ position:absolute; z-index:3; animation:wx-twinkle 2.4s ease-in-out infinite; font-size:18px; }
-@keyframes wx-twinkle{ 0%,100%{opacity:.2; transform:scale(.8);} 50%{opacity:1; transform:scale(1.25);} }
 
 /* ---- CLOUDS ---- */
 .wx-cloud{
@@ -243,10 +241,7 @@ def banner_html(code: int, temp_c=None, cond_name: str = "", place: str = "") ->
     s = THEME_STYLE[theme]
     fx = ""
     if theme == "clear":
-        fx = ('<div class="wx-sun"></div>'
-              '<div class="wx-sparkle" style="top:22px;left:42%;">✨</div>'
-              '<div class="wx-sparkle" style="top:70px;left:55%;animation-delay:.7s;">✨</div>'
-              '<div class="wx-sparkle" style="top:40px;left:68%;animation-delay:1.2s;">✨</div>')
+        fx = '<div class="wx-sun"></div>'
     elif theme == "partcloud":
         fx = '<div class="wx-sun" style="width:64px;height:64px;"></div>' + _clouds(3)
     elif theme == "cloudy":

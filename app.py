@@ -1,4 +1,4 @@
-"""Know Your Weather — trilingual city + village weather website (Python + Streamlit)."""
+"""Know Your Weather - trilingual city + village weather website (Python + Streamlit)."""
 import streamlit as st
 import pandas as pd
 from streamlit_searchbox import st_searchbox
@@ -85,7 +85,7 @@ def search_places(query: str):
     return options
 
 def place_picker(key_prefix: str, default_text=""):
-    """Autocomplete search box — suggestions appear as the user types."""
+    """Autocomplete search box - suggestions appear as the user types."""
     selected = st_searchbox(
         search_places,
         label=T("search_label"),
@@ -207,14 +207,14 @@ elif mode == T("mode_farmer"):
             st.bar_chart(df.set_index("Date")["Rain mm"])
             total = sum(x or 0 for x in past_rain)
             next_p = (daily.get("precipitation_probability_max") or [0])[-1]
-            # Advisory — trilingual templates
+            # Advisory - trilingual templates
             st.subheader(T("advisory"))
             if lang == "en":
                 st.write(f"Total rain past 7 days: **{total:.1f} mm**.")
                 if next_p > 70:
                     st.error("Heavy rain in 48h → postpone spray/fertilizer, delay harvesting.")
                 elif next_p < 20 and daily["temperature_2m_max"][-1] > 35:
-                    st.warning("No rain + heat → irrigate in 1–2 days, use mulch.")
+                    st.warning("No rain + heat → irrigate in 1-2 days, use mulch.")
                 else:
                     st.success("OK for field work. Spray morning/evening only.")
                 if total > 50:

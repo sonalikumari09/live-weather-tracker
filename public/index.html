@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Weather Tracker - India Cities, Districts & Villages</title>
+  <meta name="description" content="Instant live weather forecasts for 763 districts and 550,000+ Indian villages. Trilingual in English, Hindi, and Bhojpuri." />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌦️</text></svg>" />
+  <script>
+    (function() {
+      try {
+        var saved = localStorage.getItem('weather_theme');
+        var systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var theme = saved || (systemDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch(e) {}
+    })();
+  </script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="brand">
+        <span class="logo">🌦️</span>
+        <div>
+          <h1 id="app-title">Live Weather Tracker</h1>
+          <p id="app-sub" class="tagline">Fast, clean weather for all Indian districts, towns, and villages.</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="lang-selector">
+          <label for="lang-select" class="sr-only">Language</label>
+          <select id="lang-select" aria-label="Select Language">
+            <option value="en">English</option>
+            <option value="hi">हिन्दी (Hindi)</option>
+            <option value="bho">भोजपुरी (Bhojpuri)</option>
+          </select>
+        </div>
+        <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle light and dark mode" title="Toggle Light / Dark Mode">
+          <span class="theme-icon-sun" title="Light mode">☀️</span>
+          <span class="theme-icon-moon" title="Dark mode">🌙</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs (5 Modes) -->
+    <nav class="mode-nav">
+      <button class="nav-tab active" data-mode="single">
+        <span id="tab-single">Single Place</span>
+      </button>
+      <button class="nav-tab" data-mode="travel">
+        <span id="tab-travel">Travel Packer</span>
+      </button>
+      <button class="nav-tab" data-mode="farmer">
+        <span id="tab-farmer">Farmer Mode</span>
+      </button>
+      <button class="nav-tab" data-mode="alert">
+        <span id="tab-alert">Morning Alerts</span>
+      </button>
+      <button class="nav-tab" data-mode="compare">
+        <span id="tab-compare">Compare</span>
+      </button>
+    </nav>
+
+    <!-- Search Bar Component -->
+    <section class="search-section" id="main-search-section">
+      <div class="search-wrapper">
+        <span class="search-icon">📍</span>
+        <input
+          type="text"
+          id="place-search"
+          autocomplete="off"
+          placeholder="Search city, district, village, or PIN code (e.g. Pune, Patna, 110001)"
+          aria-label="Search places in India"
+        />
+        <button id="clear-search" class="clear-btn" aria-label="Clear search" style="display: none;">✕</button>
+        <div id="search-spinner" class="spinner" style="display: none;"></div>
+        <ul id="suggestions-list" class="suggestions-dropdown" style="display: none;"></ul>
+      </div>
+      <p id="search-hint" class="search-hint">Type 2 or more letters to search all Indian villages, districts, and cities.</p>
+    </section>
+
+    <!-- Main Content Area -->
+    <main id="content-area">
+      <!-- 1. SINGLE PLACE MODE -->
+      <section id="mode-single-view" class="mode-view active">
+        <!-- Weather Banner (Animated) -->
+        <div id="weather-banner" class="weather-banner weather-sunny">
+          <div class="banner-fx" id="banner-fx"></div>
+          <div class="banner-content">
+            <div class="banner-primary">
+              <span id="banner-icon" class="banner-icon">☀️</span>
+              <div>
+                <div class="banner-temp"><span id="banner-temp">--</span>°C</div>
+                <div id="banner-condition" class="banner-condition">Sunny</div>
+                <div id="banner-suntime" class="banner-suntime">Sunrise: -- | Sunset: --</div>
+              </div>
+            </div>
+            <div class="banner-location">
+              <h2 id="banner-place-name">Delhi</h2>
+              <p id="banner-full-loc" class="banner-subloc">Delhi, New Delhi, Delhi [city]</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <span class="metric-icon">🌡️</span>
+            <div>
+              <span class="metric-label" id="lbl-temp">Temperature</span>
+              <div class="metric-value" id="val-temp">--°C</div>
+              <span class="metric-sub" id="val-feels">Feels like: --°C</span>
+            </div>
+          </div>
+          <div class="metric-card">
+            <span class="metric-icon">💧</span>
+            <div>
+              <span class="metric-label" id="lbl-humidity">Humidity</span>
+              <div class="metric-value" id="val-humidity">--%</div>
+              <span class="metric-sub" id="lbl-comfort">Relative humidity</span>
+            </div>
+          </div>
+          <div class="metric-card">
+            <span class="metric-icon">💨</span>
+            <div>
+              <span class="metric-label" id="lbl-wind">Wind Speed</span>
+              <div class="metric-value" id="val-wind">-- km/h</div>
+              <span class="metric-sub" id="lbl-wind-dir">10m elevation</span>
+            </div>
+          </div>
+          <div class="metric-card">
+            <span class="metric-icon">🌧️</span>
+            <div>
+              <span class="metric-label" id="lbl-rain">Rain Chance</span>
+              <div class="metric-value" id="val-rain">--%</div>
+              <span class="metric-sub" id="val-maxmin">Max: --°C / Min: --°C</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 7-Day Forecast Section -->
+        <div class="section-card">
+          <h3 class="section-title" id="lbl-forecast7">7-Day Forecast</h3>
+          <div class="forecast-cards" id="forecast-cards-container"></div>
+
+          <!-- Charts -->
+          <div class="charts-container">
+            <div class="chart-box">
+              <h4 id="lbl-temp-trend">Temperature Trend (°C)</h4>
+              <div id="temp-chart-svg" class="svg-chart"></div>
+            </div>
+            <div class="chart-box">
+              <h4 id="lbl-rain-prob">Rain Probability (%)</h4>
+              <div id="rain-chart-svg" class="svg-chart"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. TRAVEL PACKER MODE -->
+      <section id="mode-travel-view" class="mode-view">
+        <div class="section-card">
+          <h3 class="section-title" id="lbl-travel-title">Travel Packing Advice</h3>
+          <p class="section-desc" id="lbl-travel-desc">Smart clothing and gear recommendations based on temperature, rain probability, and wind.</p>
+          <div id="travel-location-badge" class="location-badge"></div>
+          <div id="packing-list-container" class="packing-list"></div>
+        </div>
+      </section>
+
+      <!-- 3. FARMER MODE -->
+      <section id="mode-farmer-view" class="mode-view">
+        <div class="section-card">
+          <h3 class="section-title" id="lbl-farmer-title">Farmer Mode (Village Special)</h3>
+          <p class="section-desc" id="lbl-farmer-desc">Soil temperature, moisture levels, past 7 days rainfall history, and agricultural guidance for your village.</p>
+          <div id="farmer-location-badge" class="location-badge"></div>
+
+          <div class="metrics-grid farmer-metrics">
+            <div class="metric-card">
+              <span class="metric-icon">🌱</span>
+              <div>
+                <span class="metric-label" id="lbl-soil-temp">Soil Temp (6cm)</span>
+                <div class="metric-value" id="val-soil-temp">--°C</div>
+                <span class="metric-sub">Depth 6 cm</span>
+              </div>
+            </div>
+            <div class="metric-card">
+              <span class="metric-icon">💦</span>
+              <div>
+                <span class="metric-label" id="lbl-soil-moist">Soil Moisture</span>
+                <div class="metric-value" id="val-soil-moist">-- m³/m³</div>
+                <span class="metric-sub">Root zone (3-9 cm)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Past 7 Days Rainfall -->
+          <div class="sub-section">
+            <h4 id="lbl-rain-last7">Rainfall Past 7 Days</h4>
+            <div class="rain-history-grid" id="rain-history-container"></div>
+            <div id="farmer-rain-chart" class="svg-chart" style="margin-top: 1rem;"></div>
+          </div>
+
+          <!-- Farming Advisory -->
+          <div class="advisory-box">
+            <h4 id="lbl-advisory">Farm Advisory</h4>
+            <div id="farmer-advisory-text" class="advisory-text">Loading advisory...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. MORNING ALERTS MODE -->
+      <section id="mode-alert-view" class="mode-view">
+        <div class="section-card">
+          <h3 class="section-title" id="lbl-alert-title">Morning Severe Weather Alerts</h3>
+          <p class="section-desc" id="lbl-alert-desc">Checks for extreme conditions: heatwaves, coldwaves, thunderstorms, heavy rain, or high winds.</p>
+          <div id="alert-location-badge" class="location-badge"></div>
+          <div id="alerts-status-box" class="alert-status-box"></div>
+          <div id="alerts-list-container" class="alerts-list"></div>
+        </div>
+      </section>
+
+      <!-- 5. COMPARE PLACES MODE -->
+      <section id="mode-compare-view" class="mode-view">
+        <div class="section-card">
+          <h3 class="section-title" id="lbl-compare-title">Compare Places</h3>
+          <p class="section-desc" id="lbl-compare-desc">Compare up to 4 cities, districts, or villages side by side.</p>
+          <div class="compare-input-bar">
+            <input type="text" id="compare-input" placeholder="Type city or village names separated by comma, e.g. Delhi, Mumbai, Pune" />
+            <button id="compare-btn" class="primary-btn">Compare</button>
+          </div>
+          <div id="compare-results" class="compare-results-container" style="display: none;">
+            <div class="table-responsive">
+              <table id="compare-table" class="data-table"></table>
+            </div>
+            <div id="compare-chart-svg" class="svg-chart" style="margin-top: 1.5rem;"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p id="lbl-footer">Data: Open-Meteo & GeoNames. Built with clean HTML, CSS, JavaScript & Cloudflare Pages.</p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

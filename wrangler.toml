@@ -1,0 +1,13 @@
+name = "live-weather-tracker"
+compatibility_date = "2024-11-01"
+pages_build_output_dir = "public"
+
+# Optional Cloudflare D1 Database Binding
+# Once you create your D1 database on Cloudflare (wrangler d1 create live_weather_db),
+# paste your database_id below. If omitted or not bound, the app automatically
+# falls back to live high-speed OSM/Photon geocoding.
+#
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "live_weather_db"
+# database_id = "<YOUR_D1_DATABASE_ID>"
