@@ -28,7 +28,6 @@ mode = st.sidebar.radio(
     T("mode_label"),
     [T("mode_single"), T("mode_travel"), T("mode_farmer"), T("mode_alert"), T("mode_compare")],
 )
-st.sidebar.caption(T("tip_village"))
 
 st.title(T("app_title"))
 st.caption(T("app_sub"))
@@ -52,14 +51,12 @@ def cached_farmer(lat, lon):
 
 # Shown when the box is empty so users immediately see the search works.
 POPULAR_PLACES = [
-    {"name": "Sitamarhi", "latitude": 26.5943, "longitude": 85.5004, "admin3": "Dumra", "admin2": "Sitamarhi", "admin1": "Bihar", "country": "India", "type": "town", "type_label": "town"},
-    {"name": "Sitamarhi", "latitude": 26.6000, "longitude": 85.5000, "admin2": "Sitamarhi", "admin1": "Bihar", "country": "India", "type": "district", "type_label": "district"},
-    {"name": "Bajpatti", "latitude": 26.5539, "longitude": 85.6221, "admin3": "Bajpatti", "admin2": "Sitamarhi", "admin1": "Bihar", "country": "India", "type": "village", "type_label": "village"},
-    {"name": "Patna", "latitude": 25.6093, "longitude": 85.1235, "admin2": "Patna", "admin1": "Bihar", "country": "India", "type": "city", "type_label": "city"},
     {"name": "Delhi", "latitude": 28.6139, "longitude": 77.2090, "admin2": "New Delhi", "admin1": "Delhi", "country": "India", "type": "city", "type_label": "city"},
     {"name": "Mumbai", "latitude": 19.0760, "longitude": 72.8777, "admin2": "Mumbai", "admin1": "Maharashtra", "country": "India", "type": "city", "type_label": "city"},
-    {"name": "Pune", "latitude": 18.5204, "longitude": 73.8567, "admin2": "Pune", "admin1": "Maharashtra", "country": "India", "type": "district", "type_label": "district"},
     {"name": "Bengaluru", "latitude": 12.9716, "longitude": 77.5946, "admin2": "Bangalore Urban", "admin1": "Karnataka", "country": "India", "type": "city", "type_label": "city"},
+    {"name": "Kolkata", "latitude": 22.5726, "longitude": 88.3639, "admin2": "Kolkata", "admin1": "West Bengal", "country": "India", "type": "city", "type_label": "city"},
+    {"name": "Pune", "latitude": 18.5204, "longitude": 73.8567, "admin2": "Pune", "admin1": "Maharashtra", "country": "India", "type": "district", "type_label": "district"},
+    {"name": "Patna", "latitude": 25.6093, "longitude": 85.1235, "admin2": "Patna", "admin1": "Bihar", "country": "India", "type": "city", "type_label": "city"},
 ]
 
 def search_places(query: str):
